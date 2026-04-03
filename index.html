@@ -139,10 +139,6 @@
             border-radius: 100px;
             margin-bottom: 0.75rem;
         }
-        .trial-badge.practice {
-            background: rgba(241,196,15,0.15);
-            color: #b8860b;
-        }
         .trial-title {
             font-size: 1.6rem; font-weight: 300; color: #1a1a1a;
             letter-spacing: -0.02em; line-height: 1.2;
@@ -170,6 +166,25 @@
             text-transform: uppercase; letter-spacing: 0.1em;
             color: #888; margin-top: 0.4rem;
         }
+
+        /* Debug panel */
+        .debug-panel {
+            background: rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+        }
+        .debug-panel.visible { display: block; }
+        .debug-panel .debug-row {
+            display: flex; justify-content: space-between;
+        }
+        .debug-panel .debug-val { color: #1a1a1a; font-weight: 600; }
 
         .guidelines {
             background: rgba(255,255,255,0.9);
@@ -321,6 +336,85 @@
         .begin-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 30px rgba(0,0,0,0.15); }
         .begin-btn:active { transform: scale(0.98); }
 
+        /* ─── Questionnaire Overlay ─── */
+        .questionnaire-overlay {
+            display: none;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(24px);
+            z-index: 9999;
+            align-items: center; justify-content: center;
+            padding: 1rem;
+        }
+        .questionnaire-card {
+            max-width: 700px; width: 100%;
+            max-height: 90vh; overflow-y: auto;
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+        }
+        .q-title { font-size: 1.8rem; font-weight: 300; margin-bottom: 0.4rem; color: #1a1a1a; }
+        .q-subtitle { font-size: 0.95rem; color: #888; margin-bottom: 2rem; }
+        .q-group {
+            background: #fafafa;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1rem;
+        }
+        .q-group label.q-label {
+            display: block; font-size: 0.95rem; font-weight: 600;
+            margin-bottom: 0.6rem; color: #1a1a1a;
+        }
+        .radio-row {
+            display: flex; gap: 1.5rem; flex-wrap: wrap;
+        }
+        .radio-row label {
+            display: flex; align-items: center; gap: 0.4rem;
+            font-size: 0.9rem; cursor: pointer; color: #555;
+        }
+        .radio-row input[type="radio"] { accent-color: #1a1a1a; }
+        .likert-row {
+            display: flex; align-items: center; gap: 0.25rem;
+        }
+        .likert-row .end-label {
+            font-size: 0.7rem; color: #888;
+            min-width: 50px; text-align: center;
+        }
+        .likert-option {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; cursor: pointer; padding: 0.25rem;
+        }
+        .likert-option input[type="radio"] { accent-color: #1a1a1a; margin-bottom: 0.15rem; }
+        .likert-option span { font-size: 0.7rem; color: #888; }
+        .q-textarea {
+            width: 100%; padding: 0.6rem;
+            font-size: 0.9rem; font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background: #fff; color: #1a1a1a;
+            border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;
+            resize: vertical;
+        }
+        .q-textarea:focus { outline: none; border-color: #1a1a1a; }
+        .q-input {
+            width: 100%; padding: 0.6rem;
+            font-size: 0.9rem; font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background: #fff; color: #1a1a1a;
+            border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;
+        }
+        .q-input:focus { outline: none; border-color: #1a1a1a; }
+        .q-submit {
+            width: 100%; padding: 1rem;
+            font-size: 1rem; font-weight: 700;
+            color: #fff; background: #1a1a1a;
+            border: none; border-radius: 100px;
+            cursor: pointer; font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            margin-top: 1rem;
+            transition: all 0.2s ease;
+        }
+        .q-submit:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+
         /* ─── Calibration Overlay ─── */
         .calibration-overlay {
             display: none;
@@ -353,33 +447,58 @@
             transition: width 0.15s ease;
         }
 
-        /* ─── Results Page — Simple, like tapping ─── */
+        /* ─── Results Page ─── */
         .final-results {
             display: none;
-            max-width: 500px;
+            max-width: 800px;
             margin: 0 auto;
             padding: 4rem 2rem;
             position: relative; z-index: 2;
+        }
+        .results-hero {
             text-align: center;
+            margin-bottom: 3rem;
         }
         .results-hero h1 {
             font-size: 2.4rem; font-weight: 200;
-            letter-spacing: -0.02em; margin-bottom: 0.5rem;
+            letter-spacing: -0.02em; margin-bottom: 1rem;
             color: #1a1a1a;
         }
-        .results-hero p {
-            color: #888; font-size: 1rem; margin-bottom: 2.5rem;
+        .results-stat-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 1rem; margin-bottom: 2rem;
         }
-        .results-big-count {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 7rem; font-weight: 700;
+        .results-stat-card {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 16px;
+            padding: 1.5rem; text-align: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+        .results-stat-card .big-num {
+            font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            font-size: 3rem; font-weight: 700;
             color: #1a1a1a; line-height: 1;
-            margin-bottom: 0.5rem;
         }
-        .results-big-label {
-            font-size: 1.1rem; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 0.12em;
-            color: #888; margin-bottom: 3rem;
+        .results-stat-card .big-label {
+            font-size: 0.8rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            color: #888; margin-top: 0.5rem;
+        }
+        .percentile-card {
+            background: #fafafa;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 16px;
+            padding: 2rem; text-align: center;
+            margin-bottom: 2rem;
+        }
+        .percentile-card .pct-num {
+            font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            font-size: 2.5rem; font-weight: 700;
+            color: #1a1a1a;
+        }
+        .percentile-card .pct-label {
+            font-size: 0.95rem; color: #888; margin-top: 0.4rem;
         }
         .share-btn {
             display: inline-block; padding: 0.9rem 2.5rem;
@@ -408,6 +527,7 @@
             }
             .right-panel { flex: 1; height: 100vh; }
             .guidelines { display: none; }
+            .debug-panel { display: none !important; }
             .live-stats { grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem; }
             .stat-card { padding: 0.6rem; }
             .stat-value { font-size: 1.4rem; }
@@ -420,7 +540,7 @@
             .position-text { font-size: 0.9rem; padding: 0.6rem 1.2rem; }
             .final-results { padding: 2rem 1rem; }
             .results-hero h1 { font-size: 1.6rem; }
-            .results-big-count { font-size: 5rem; }
+            .results-stat-grid { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 430px) and (max-height: 700px) {
@@ -455,12 +575,17 @@
 <div id="trial-overlay" class="trial-overlay">
     <div class="trial-overlay-content">
         <div id="trial-overlay-title" class="trial-overlay-title"></div>
-        <div class="trial-overlay-instruction" id="trial-overlay-instruction">
-            Stand up and sit down as <strong class="danger">FAST</strong> as you can.<br>
+        <div class="trial-overlay-instruction">
+            Stand up and sit down as <strong class="danger">FAST</strong> as you can for <strong>30 seconds</strong>.<br>
             Cross your arms over your chest. Fully sit between each stand.
         </div>
         <button class="begin-btn" id="begin-btn">Tap to Begin</button>
     </div>
+</div>
+
+<!-- ═══════ Questionnaire Overlay ═══════ -->
+<div id="questionnaire-overlay" class="questionnaire-overlay">
+    <!-- populated dynamically -->
 </div>
 
 <!-- ═══════ Webcam Page ═══════ -->
@@ -468,8 +593,8 @@
     <div class="main-container">
         <div class="left-panel">
             <div class="trial-info">
-                <div class="trial-badge" id="trial-badge">Practice</div>
-                <div class="trial-title" id="trial-title">Sit to Stand</div>
+                <div class="trial-badge" id="trial-badge">Trial 1 of 3</div>
+                <div class="trial-title" id="trial-title">30-Second Sit to Stand</div>
             </div>
 
             <div class="live-stats">
@@ -478,9 +603,19 @@
                     <div class="stat-label">Stands</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="time-remaining">00:10</div>
+                    <div class="stat-value" id="time-remaining">00:30</div>
                     <div class="stat-label">Time Left</div>
                 </div>
+            </div>
+
+            <div class="debug-panel" id="debug-panel">
+                <div class="debug-row"><span>Knee°</span><span class="debug-val" id="dbg-knee">--</span></div>
+                <div class="debug-row"><span>Hip°</span><span class="debug-val" id="dbg-hip">--</span></div>
+                <div class="debug-row"><span>HipY</span><span class="debug-val" id="dbg-hipy">--</span></div>
+                <div class="debug-row"><span>Vel</span><span class="debug-val" id="dbg-vel">--</span></div>
+                <div class="debug-row"><span>State</span><span class="debug-val" id="dbg-state">--</span></div>
+                <div class="debug-row"><span>Conf</span><span class="debug-val" id="dbg-conf">--</span></div>
+                <div class="debug-row"><span>FPS</span><span class="debug-val" id="dbg-fps">--</span></div>
             </div>
 
             <div class="guidelines">
@@ -489,6 +624,7 @@
                 <div class="guideline-item">Arms crossed over chest</div>
                 <div class="guideline-item">Stand up fully each time</div>
                 <div class="guideline-item">Sit down completely between stands</div>
+                <div class="guideline-item">Camera should see your full body</div>
             </div>
         </div>
 
@@ -507,14 +643,14 @@
                 </div>
 
                 <div class="position-badge" id="position-badge">
-                    <div class="position-text" id="position-text">Position your body in view</div>
+                    <div class="position-text" id="position-text">Position your full body in view</div>
                 </div>
 
                 <div class="feedback-banner" id="feedback-banner">
                     <span id="feedback-msg"></span>
                 </div>
 
-                <div class="center-timer" id="center-timer" data-stands="0">00:10</div>
+                <div class="center-timer" id="center-timer" data-stands="0">00:30</div>
             </div>
         </div>
     </div>
@@ -529,38 +665,45 @@
 // ╚══════════════════════════════════════════════════════════════════╝
 
 const CONFIG = {
-    // Trial 0 = 10s practice, Trial 1 = 30s real
-    TOTAL_TRIALS: 2,
-    TRIAL_DURATIONS_MS: [10000, 30000],
-    TRIAL_LABELS: ['Practice (10s)', '30-Second Test'],
-    TRIAL_IS_PRACTICE: [true, false],
-    MIN_STANDS_REQUIRED: 1,
+    TRIAL_DURATION_MS: 30000,
+    TOTAL_TRIALS: 3,
+    MIN_STANDS_REQUIRED: 3,
 
-    VISIBILITY_THRESHOLD: 0.15,
+    // Landmark visibility — relaxed because MediaPipe often underreports
+    VISIBILITY_THRESHOLD: 0.25,
 
+    // ──── ADAPTIVE CALIBRATION ────
+    // These are FALLBACK defaults; real thresholds are set by calibration
     DEFAULT_SITTING_KNEE_ANGLE: 110,
     DEFAULT_STANDING_KNEE_ANGLE: 160,
     DEFAULT_SITTING_HIP_ANGLE: 110,
     DEFAULT_STANDING_HIP_ANGLE: 155,
 
-    CALIBRATION_SIT_FRAMES: 40,
+    // Calibration
+    CALIBRATION_SIT_FRAMES: 40,    // ~1.3s at 30fps
     CALIBRATION_STAND_FRAMES: 40,
-    CALIBRATION_THRESHOLD_MARGIN: 0.35,
+    CALIBRATION_THRESHOLD_MARGIN: 0.35, // Threshold is 35% of the way between sit/stand
 
-    MIN_TRANSITION_MS: 200,
-    MIN_CONSECUTIVE_FRAMES: 3,
-    STAND_CONFIRMATION_FRAMES: 2,
-    SIT_CONFIRMATION_FRAMES: 2,
+    // ──── STATE MACHINE ────
+    // 4-state: SITTING → RISING → STANDING → LOWERING → SITTING
+    MIN_TRANSITION_MS: 250,          // Minimum time in any state before transition
+    MIN_CONSECUTIVE_FRAMES: 4,       // Must see N consecutive frames agreeing on new state
+    STAND_CONFIRMATION_FRAMES: 3,    // Frames confirming standing to count a rep
+    SIT_CONFIRMATION_FRAMES: 3,      // Frames confirming sitting to reset
 
-    SMOOTHING_ALPHA: 0.40,
-    VELOCITY_WINDOW: 5,
-    OUTLIER_JUMP_THRESHOLD: 0.10,
-    OUTLIER_ANGLE_JUMP: 30,
+    // ──── SIGNAL PROCESSING ────
+    SMOOTHING_WINDOW: 7,             // EMA-like smoothing window (frames)
+    SMOOTHING_ALPHA: 0.35,           // EMA alpha — higher = more responsive, noisier
+    VELOCITY_WINDOW: 5,              // Frames for velocity calculation
+    OUTLIER_JUMP_THRESHOLD: 0.08,    // Max plausible hip-Y jump per frame (normalized coords)
+    OUTLIER_ANGLE_JUMP: 25,          // Max plausible angle change per frame (degrees)
 
-    MAX_POSE_LOSS_MS: 4000,
-    MAX_INACTIVITY_MS: 12000,
+    // ──── ROBUSTNESS ────
+    MAX_POSE_LOSS_MS: 3000,
+    MAX_INACTIVITY_MS: 10000,
 
-    DEBUG: false,
+    // ──── DEBUG ────
+    DEBUG: false,  // Set true to show debug panel
 };
 
 // Firebase
@@ -582,6 +725,7 @@ if (!participantID) {
     sessionStorage.setItem('prolificID', participantID);
 }
 
+// Save device info
 db.collection("STS_Participants").doc(participantID).collection("DeviceInfo").doc("device").set({
     userAgent: navigator.userAgent, platform: navigator.platform,
     screenWidth: screen.width, screenHeight: screen.height,
@@ -603,6 +747,7 @@ let startTime = null;
 let trialIndex = 0;
 let allTrialResults = [];
 
+// ──── Per-trial state ────
 let standEvents = [];
 let frameData = [];
 let kneeAngleHistory = [];
@@ -613,34 +758,41 @@ let standCount = 0;
 let poseDetected = false;
 let lastPoseTime = 0;
 
+// ──── 4-State Machine ────
+// States: 'sitting', 'rising', 'standing', 'lowering'
 let currentState = 'unknown';
 let stateEntryTime = 0;
-let consecutiveStateFrames = 0;
+let consecutiveStateFrames = 0; // How many frames in a row agree on a new state
 let pendingState = null;
 
+// ──── Calibration State ────
 const CAL_PHASE = { NONE: 0, SITTING: 1, STANDING: 2, DONE: 3 };
 let calPhase = CAL_PHASE.NONE;
 let calSitFrames = [];
 let calStandFrames = [];
-let calData = null;
+let calData = null; // { sitKnee, sitHip, sitHipY, standKnee, standHip, standHipY, thresholds }
 
+// ──── Signal Processing ────
 let smoothedKneeAngle = null;
 let smoothedHipAngle = null;
 let smoothedHipY = null;
 let prevRawKneeAngle = null;
 let prevRawHipAngle = null;
 let prevRawHipY = null;
-let hipYVelocityBuffer = [];
+let hipYVelocityBuffer = []; // Recent hipY values for velocity calculation
 let hipYTimestampBuffer = [];
 
+// ──── FPS tracking ────
 let frameTimestamps = [];
 
+// ──── Timers ────
 let mainTimerInterval = null;
 let inactivityInterval = null;
 let stopTimeoutId = null;
 
 let readyToStart = false;
 
+// MediaPipe landmark indices
 const POSE = {
     NOSE: 0,
     LEFT_SHOULDER: 11, RIGHT_SHOULDER: 12,
@@ -651,13 +803,6 @@ const POSE = {
     LEFT_WRIST: 15,     RIGHT_WRIST: 16,
 };
 
-function currentTrialDuration() {
-    return CONFIG.TRIAL_DURATIONS_MS[trialIndex] || 30000;
-}
-function currentTrialIsPractice() {
-    return CONFIG.TRIAL_IS_PRACTICE[trialIndex] || false;
-}
-
 
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  MEDIAPIPE INITIALIZATION                                        ║
@@ -665,21 +810,26 @@ function currentTrialIsPractice() {
 
 async function initializePoseLandmarker() {
     updateLoadingProgress(10, "Loading MediaPipe vision tasks...");
+
     try {
         updateLoadingProgress(20, "Importing MediaPipe ES module...");
         const visionModule = await import(
             "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/vision_bundle.mjs"
         );
+
         const FilesetResolverClass = visionModule.FilesetResolver;
         const PoseLandmarkerClass = visionModule.PoseLandmarker;
+        window._mpDrawingUtils = visionModule.DrawingUtils;
 
         updateLoadingProgress(40, "Resolving WASM fileset...");
         const visionFileset = await FilesetResolverClass.forVisionTasks(
             "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/wasm"
         );
 
+        // Use FULL model for clinical accuracy — NOT lite
+        // Full model has significantly better landmark stability, especially for legs
         try {
-            updateLoadingProgress(55, "Loading pose model...");
+            updateLoadingProgress(55, "Loading full pose model for clinical accuracy...");
             poseLandmarker = await PoseLandmarkerClass.createFromOptions(visionFileset, {
                 baseOptions: {
                     modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task",
@@ -687,14 +837,16 @@ async function initializePoseLandmarker() {
                 },
                 runningMode: "VIDEO",
                 numPoses: 1,
-                minPoseDetectionConfidence: 0.5,
-                minPosePresenceConfidence: 0.5,
-                minTrackingConfidence: 0.5,
+                minPoseDetectionConfidence: 0.6,
+                minPosePresenceConfidence: 0.6,
+                minTrackingConfidence: 0.6,
                 outputSegmentationMasks: false
             });
-            updateLoadingProgress(75, "Model loaded. Starting camera...");
+            updateLoadingProgress(75, "Full model loaded. Starting camera...");
+            console.log("✅ PoseLandmarker initialized (FULL model)");
         } catch (fullErr) {
-            updateLoadingProgress(55, "Trying lite model...");
+            console.warn("⚠️ Full model failed, trying lite:", fullErr.message);
+            updateLoadingProgress(55, "Falling back to lite model...");
             poseLandmarker = await PoseLandmarkerClass.createFromOptions(visionFileset, {
                 baseOptions: {
                     modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
@@ -708,10 +860,12 @@ async function initializePoseLandmarker() {
                 outputSegmentationMasks: false
             });
             updateLoadingProgress(75, "Lite model loaded.");
+            console.log("✅ PoseLandmarker initialized (lite fallback)");
         }
+
     } catch (error) {
-        console.error("PoseLandmarker init failed:", error);
-        alert("Failed to load pose model. Please refresh.\n\n" + error.message);
+        console.error("❌ PoseLandmarker initialization failed:", error);
+        alert("Failed to load pose detection model. Please refresh and try again.\n\nError: " + error.message);
     }
 }
 
@@ -720,45 +874,59 @@ function initializeCamera() {
     const canvas = document.getElementById('outputCanvas');
     canvasCtx = canvas.getContext('2d');
 
-    navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user", frameRate: { ideal: 30 } }
-    })
-    .catch(() => navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } }))
-    .then(stream => {
-        video.srcObject = stream;
-        video.setAttribute('playsinline', 'true');
-        video.muted = true;
+    const constraints = {
+        video: {
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            facingMode: "user",
+            frameRate: { ideal: 30, max: 30 }
+        }
+    };
 
-        video.onloadedmetadata = () => {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            updateLoadingProgress(90, "Camera ready...");
+    navigator.mediaDevices.getUserMedia(constraints)
+        .catch(() => navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } }))
+        .then(stream => {
+            video.srcObject = stream;
+            video.setAttribute('playsinline', 'true');
+            video.muted = true;
 
-            let lastVideoTime = -1;
-            const processFrame = () => {
-                if (video.readyState >= 2 && !video.paused && poseLandmarker) {
-                    const now = performance.now();
-                    if (video.currentTime !== lastVideoTime) {
-                        lastVideoTime = video.currentTime;
-                        try {
-                            const result = poseLandmarker.detectForVideo(video, now);
-                            onPoseResults(result, canvas);
-                        } catch (err) {}
+            video.onloadedmetadata = () => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+
+                updateLoadingProgress(90, "Camera ready. Starting detection...");
+
+                let lastVideoTime = -1;
+
+                const processFrame = () => {
+                    if (video.readyState >= 2 && !video.paused && poseLandmarker) {
+                        const now = performance.now();
+                        if (video.currentTime !== lastVideoTime) {
+                            lastVideoTime = video.currentTime;
+                            try {
+                                const result = poseLandmarker.detectForVideo(video, now);
+                                onPoseResults(result, canvas);
+                            } catch (err) {
+                                // Suppress occasional frame errors
+                            }
+                        }
                     }
-                }
-                requestAnimationFrame(processFrame);
-            };
+                    requestAnimationFrame(processFrame);
+                };
 
-            video.play().then(() => {
-                updateLoadingProgress(100, "Ready!");
-                setTimeout(() => document.getElementById('loading-overlay').classList.add('hidden'), 400);
-                requestAnimationFrame(processFrame);
-            });
-        };
-    })
-    .catch(err => {
-        alert("Camera access denied. Please refresh and grant permissions.");
-    });
+                video.play().then(() => {
+                    updateLoadingProgress(100, "Ready!");
+                    setTimeout(() => {
+                        document.getElementById('loading-overlay').classList.add('hidden');
+                    }, 400);
+                    requestAnimationFrame(processFrame);
+                });
+            };
+        })
+        .catch(err => {
+            console.error("Camera error:", err);
+            alert("Camera access denied. Please refresh and grant permissions.");
+        });
 }
 
 
@@ -767,45 +935,51 @@ function initializeCamera() {
 // ╚══════════════════════════════════════════════════════════════════╝
 
 function angleBetweenPoints(a, b, c) {
-    const ab = { x: a.x - b.x, y: a.y - b.y, z: (a.z||0) - (b.z||0) };
-    const cb = { x: c.x - b.x, y: c.y - b.y, z: (c.z||0) - (b.z||0) };
-    const dot = ab.x*cb.x + ab.y*cb.y + ab.z*cb.z;
+    const ab = { x: a.x - b.x, y: a.y - b.y, z: (a.z || 0) - (b.z || 0) };
+    const cb = { x: c.x - b.x, y: c.y - b.y, z: (c.z || 0) - (b.z || 0) };
+    const dot = ab.x * cb.x + ab.y * cb.y + ab.z * cb.z;
     const magAB = Math.sqrt(ab.x**2 + ab.y**2 + ab.z**2);
     const magCB = Math.sqrt(cb.x**2 + cb.y**2 + cb.z**2);
     if (magAB === 0 || magCB === 0) return 0;
-    return Math.acos(Math.max(-1, Math.min(1, dot / (magAB * magCB)))) * (180 / Math.PI);
+    const cosAngle = Math.max(-1, Math.min(1, dot / (magAB * magCB)));
+    return Math.acos(cosAngle) * (180 / Math.PI);
 }
 
 function landmarkVisible(lm) {
     return lm && (lm.visibility === undefined || lm.visibility > CONFIG.VISIBILITY_THRESHOLD);
 }
 
-function landmarkUsable(lm) {
-    return lm && lm.x !== undefined && lm.y !== undefined;
-}
-
+// Exponential Moving Average — responsive but smooth
 function emaSmooth(prev, current, alpha) {
     if (prev === null) return current;
     return alpha * current + (1 - alpha) * prev;
 }
 
+// Outlier rejection: if a value jumps too far from previous, clamp it
 function rejectOutlier(prev, current, maxJump) {
     if (prev === null) return current;
     const delta = current - prev;
-    if (Math.abs(delta) > maxJump) return prev + Math.sign(delta) * maxJump * 0.5;
+    if (Math.abs(delta) > maxJump) {
+        return prev + Math.sign(delta) * maxJump * 0.5;
+    }
     return current;
 }
 
+// Calculate velocity from recent position buffer
 function calculateVelocity(posBuffer, timeBuffer) {
     if (posBuffer.length < 2) return 0;
     const n = posBuffer.length;
-    const dt = (timeBuffer[n-1] - timeBuffer[0]) / 1000;
+    const dt = (timeBuffer[n - 1] - timeBuffer[0]) / 1000; // seconds
     if (dt <= 0) return 0;
-    let sumX=0, sumY=0, sumXY=0, sumX2=0;
+    // Use linear regression for robustness against noise
+    let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
     for (let i = 0; i < n; i++) {
         const x = (timeBuffer[i] - timeBuffer[0]) / 1000;
         const y = posBuffer[i];
-        sumX += x; sumY += y; sumXY += x*y; sumX2 += x*x;
+        sumX += x;
+        sumY += y;
+        sumXY += x * y;
+        sumX2 += x * x;
     }
     const denom = n * sumX2 - sumX * sumX;
     if (Math.abs(denom) < 1e-10) return 0;
@@ -814,50 +988,70 @@ function calculateVelocity(posBuffer, timeBuffer) {
 
 
 // ╔══════════════════════════════════════════════════════════════════╗
-// ║  POSE ANALYSIS — works with partial body visibility             ║
+// ║  POSE ANALYSIS                                                   ║
 // ╚══════════════════════════════════════════════════════════════════╝
 
 function analyzePose(landmarks) {
-    const lS = landmarks[POSE.LEFT_SHOULDER], rS = landmarks[POSE.RIGHT_SHOULDER];
-    const lH = landmarks[POSE.LEFT_HIP],      rH = landmarks[POSE.RIGHT_HIP];
-    const lK = landmarks[POSE.LEFT_KNEE],      rK = landmarks[POSE.RIGHT_KNEE];
-    const lA = landmarks[POSE.LEFT_ANKLE],     rA = landmarks[POSE.RIGHT_ANKLE];
+    const lShoulder = landmarks[POSE.LEFT_SHOULDER];
+    const rShoulder = landmarks[POSE.RIGHT_SHOULDER];
+    const lHip = landmarks[POSE.LEFT_HIP];
+    const rHip = landmarks[POSE.RIGHT_HIP];
+    const lKnee = landmarks[POSE.LEFT_KNEE];
+    const rKnee = landmarks[POSE.RIGHT_KNEE];
+    const lAnkle = landmarks[POSE.LEFT_ANKLE];
+    const rAnkle = landmarks[POSE.RIGHT_ANKLE];
 
-    const leftLegOk = landmarkUsable(lH) && landmarkUsable(lK) && landmarkUsable(lA);
-    const rightLegOk = landmarkUsable(rH) && landmarkUsable(rK) && landmarkUsable(rA);
-    const leftHipOk = landmarkUsable(lS) && landmarkUsable(lH) && landmarkUsable(lK);
-    const rightHipOk = landmarkUsable(rS) && landmarkUsable(rH) && landmarkUsable(rK);
+    // Need at least one complete side
+    const leftLegOk = landmarkVisible(lHip) && landmarkVisible(lKnee) && landmarkVisible(lAnkle);
+    const rightLegOk = landmarkVisible(rHip) && landmarkVisible(rKnee) && landmarkVisible(rAnkle);
+    const leftHipOk = landmarkVisible(lShoulder) && landmarkVisible(lHip) && landmarkVisible(lKnee);
+    const rightHipOk = landmarkVisible(rShoulder) && landmarkVisible(rHip) && landmarkVisible(rKnee);
 
-    const hipLUsable = landmarkUsable(lH);
-    const hipRUsable = landmarkUsable(rH);
-    if (!hipLUsable && !hipRUsable) return null;
+    if (!leftLegOk && !rightLegOk) return null;
+    if (!leftHipOk && !rightHipOk) return null;
 
-    let kneeAngles = [], hipAngles = [];
-    if (leftLegOk) kneeAngles.push(angleBetweenPoints(lH, lK, lA));
-    if (rightLegOk) kneeAngles.push(angleBetweenPoints(rH, rK, rA));
-    if (leftHipOk) hipAngles.push(angleBetweenPoints(lS, lH, lK));
-    if (rightHipOk) hipAngles.push(angleBetweenPoints(rS, rH, rK));
+    // Raw angles
+    let kneeAngles = [];
+    let hipAngles = [];
 
-    const rawKneeAngle = kneeAngles.length > 0 ? kneeAngles.reduce((a,b)=>a+b,0)/kneeAngles.length : null;
-    const rawHipAngle = hipAngles.length > 0 ? hipAngles.reduce((a,b)=>a+b,0)/hipAngles.length : null;
+    if (leftLegOk) kneeAngles.push(angleBetweenPoints(lHip, lKnee, lAnkle));
+    if (rightLegOk) kneeAngles.push(angleBetweenPoints(rHip, rKnee, rAnkle));
+    if (leftHipOk) hipAngles.push(angleBetweenPoints(lShoulder, lHip, lKnee));
+    if (rightHipOk) hipAngles.push(angleBetweenPoints(rShoulder, rHip, rKnee));
 
+    const rawKneeAngle = kneeAngles.reduce((a, b) => a + b, 0) / kneeAngles.length;
+    const rawHipAngle = hipAngles.reduce((a, b) => a + b, 0) / hipAngles.length;
+
+    // Hip midpoint Y (vertical position, normalized: 0=top, 1=bottom)
+    const hipLOk = landmarkVisible(lHip);
+    const hipROk = landmarkVisible(rHip);
     let rawHipY = null;
-    if (hipLUsable && hipRUsable) rawHipY = (lH.y + rH.y) / 2;
-    else if (hipLUsable) rawHipY = lH.y;
-    else rawHipY = rH.y;
+    if (hipLOk && hipROk) {
+        rawHipY = (lHip.y + rHip.y) / 2;
+    } else if (hipLOk) {
+        rawHipY = lHip.y;
+    } else if (hipROk) {
+        rawHipY = rHip.y;
+    }
 
-    const filteredKnee = rawKneeAngle !== null ? rejectOutlier(prevRawKneeAngle, rawKneeAngle, CONFIG.OUTLIER_ANGLE_JUMP) : null;
-    const filteredHip = rawHipAngle !== null ? rejectOutlier(prevRawHipAngle, rawHipAngle, CONFIG.OUTLIER_ANGLE_JUMP) : null;
-    const filteredHipY = rawHipY !== null ? rejectOutlier(prevRawHipY, rawHipY, CONFIG.OUTLIER_JUMP_THRESHOLD) : null;
+    // ── Outlier rejection ──
+    const filteredKnee = rejectOutlier(prevRawKneeAngle, rawKneeAngle, CONFIG.OUTLIER_ANGLE_JUMP);
+    const filteredHip = rejectOutlier(prevRawHipAngle, rawHipAngle, CONFIG.OUTLIER_ANGLE_JUMP);
+    const filteredHipY = rawHipY !== null ?
+        rejectOutlier(prevRawHipY, rawHipY, CONFIG.OUTLIER_JUMP_THRESHOLD) : null;
 
-    if (filteredKnee !== null) prevRawKneeAngle = filteredKnee;
-    if (filteredHip !== null) prevRawHipAngle = filteredHip;
-    if (filteredHipY !== null) prevRawHipY = filteredHipY;
+    prevRawKneeAngle = filteredKnee;
+    prevRawHipAngle = filteredHip;
+    prevRawHipY = filteredHipY;
 
-    if (filteredKnee !== null) smoothedKneeAngle = emaSmooth(smoothedKneeAngle, filteredKnee, CONFIG.SMOOTHING_ALPHA);
-    if (filteredHip !== null) smoothedHipAngle = emaSmooth(smoothedHipAngle, filteredHip, CONFIG.SMOOTHING_ALPHA);
-    if (filteredHipY !== null) smoothedHipY = emaSmooth(smoothedHipY, filteredHipY, CONFIG.SMOOTHING_ALPHA);
+    // ── EMA smoothing ──
+    smoothedKneeAngle = emaSmooth(smoothedKneeAngle, filteredKnee, CONFIG.SMOOTHING_ALPHA);
+    smoothedHipAngle = emaSmooth(smoothedHipAngle, filteredHip, CONFIG.SMOOTHING_ALPHA);
+    if (filteredHipY !== null) {
+        smoothedHipY = emaSmooth(smoothedHipY, filteredHipY, CONFIG.SMOOTHING_ALPHA);
+    }
 
+    // ── Velocity calculation ──
     const now = performance.now();
     if (smoothedHipY !== null) {
         hipYVelocityBuffer.push(smoothedHipY);
@@ -867,27 +1061,40 @@ function analyzePose(landmarks) {
             hipYTimestampBuffer.shift();
         }
     }
+    const hipYVelocity = calculateVelocity(hipYVelocityBuffer, hipYTimestampBuffer);
+    // Positive velocity = moving downward (sitting); negative = moving upward (standing)
 
     return {
         kneeAngle: smoothedKneeAngle,
         hipAngle: smoothedHipAngle,
         hipY: smoothedHipY,
-        hipYVelocity: calculateVelocity(hipYVelocityBuffer, hipYTimestampBuffer),
-        rawKneeAngle, rawHipAngle, rawHipY,
-        hasKneeData: kneeAngles.length > 0,
-        hasHipAngleData: hipAngles.length > 0,
+        hipYVelocity,
+        rawKneeAngle,
+        rawHipAngle,
+        rawHipY,
+        leftKneeAngle: leftLegOk ? kneeAngles[0] : null,
+        rightKneeAngle: rightLegOk ? kneeAngles[kneeAngles.length - 1] : null,
+        leftHipAngle: leftHipOk ? hipAngles[0] : null,
+        rightHipAngle: rightHipOk ? hipAngles[hipAngles.length - 1] : null,
         landmarks: {
-            lShoulder: {x:lS.x,y:lS.y,z:lS.z}, rShoulder: {x:rS.x,y:rS.y,z:rS.z},
-            lHip: {x:lH.x,y:lH.y,z:lH.z}, rHip: {x:rH.x,y:rH.y,z:rH.z},
-            lKnee: {x:lK.x,y:lK.y,z:lK.z}, rKnee: {x:rK.x,y:rK.y,z:rK.z},
-            lAnkle: {x:lA.x,y:lA.y,z:lA.z}, rAnkle: {x:rA.x,y:rA.y,z:rA.z},
+            lShoulder: { x: lShoulder.x, y: lShoulder.y, z: lShoulder.z },
+            rShoulder: { x: rShoulder.x, y: rShoulder.y, z: rShoulder.z },
+            lHip: { x: lHip.x, y: lHip.y, z: lHip.z },
+            rHip: { x: rHip.x, y: rHip.y, z: rHip.z },
+            lKnee: { x: lKnee.x, y: lKnee.y, z: lKnee.z },
+            rKnee: { x: rKnee.x, y: rKnee.y, z: rKnee.z },
+            lAnkle: { x: lAnkle.x, y: lAnkle.y, z: lAnkle.z },
+            rAnkle: { x: rAnkle.x, y: rAnkle.y, z: rAnkle.z },
         }
     };
 }
 
 
 // ╔══════════════════════════════════════════════════════════════════╗
-// ║  CALIBRATION                                                     ║
+// ║  DUAL-PHASE CALIBRATION                                         ║
+// ║  Phase 1: Learn SITTING pose                                     ║
+// ║  Phase 2: Learn STANDING pose (from first stand)                ║
+// ║  Then compute thresholds as midpoints between the two           ║
 // ╚══════════════════════════════════════════════════════════════════╝
 
 function startCalibration() {
@@ -896,7 +1103,8 @@ function startCalibration() {
     calStandFrames = [];
     calData = null;
 
-    document.getElementById('calibration-overlay').style.display = 'flex';
+    const overlay = document.getElementById('calibration-overlay');
+    overlay.style.display = 'flex';
     document.getElementById('cal-title').textContent = 'Sit Still';
     document.getElementById('cal-instruction').textContent = 'Stay seated — calibrating your position...';
     document.getElementById('cal-progress').style.width = '0%';
@@ -904,25 +1112,40 @@ function startCalibration() {
 
 function feedCalibrationFrame(analysis) {
     if (calPhase === CAL_PHASE.NONE || calPhase === CAL_PHASE.DONE) return;
-    if (analysis.hipY === null) return;
 
     if (calPhase === CAL_PHASE.SITTING) {
-        calSitFrames.push({ knee: analysis.kneeAngle, hip: analysis.hipAngle, hipY: analysis.hipY });
-        document.getElementById('cal-progress').style.width = (calSitFrames.length / CONFIG.CALIBRATION_SIT_FRAMES * 100) + '%';
+        calSitFrames.push({
+            knee: analysis.kneeAngle,
+            hip: analysis.hipAngle,
+            hipY: analysis.hipY
+        });
+
+        const pct = (calSitFrames.length / CONFIG.CALIBRATION_SIT_FRAMES) * 100;
+        document.getElementById('cal-progress').style.width = pct + '%';
 
         if (calSitFrames.length >= CONFIG.CALIBRATION_SIT_FRAMES) {
+            // Sitting calibration complete — move to standing phase
             calPhase = CAL_PHASE.STANDING;
             document.getElementById('cal-title').textContent = 'Now Stand Up';
             document.getElementById('cal-instruction').textContent = 'Stand up tall — calibrating standing position...';
             document.getElementById('cal-progress').style.width = '0%';
         }
     } else if (calPhase === CAL_PHASE.STANDING) {
-        const sitAvgHipY = calSitFrames.filter(f=>f.hipY!==null).reduce((a,b)=>a+b.hipY,0) / calSitFrames.filter(f=>f.hipY!==null).length;
-        const hipDelta = sitAvgHipY - analysis.hipY;
+        // Only collect frames when person appears to be standing
+        // (significant upward hip displacement from sitting average)
+        const sitAvgHipY = calSitFrames.reduce((a, b) => a + b.hipY, 0) / calSitFrames.length;
+        const hipDelta = sitAvgHipY - analysis.hipY; // Positive = moved up
 
-        if (hipDelta > 0.03) {
-            calStandFrames.push({ knee: analysis.kneeAngle, hip: analysis.hipAngle, hipY: analysis.hipY });
-            document.getElementById('cal-progress').style.width = (calStandFrames.length / CONFIG.CALIBRATION_STAND_FRAMES * 100) + '%';
+        // Need substantial upward movement (at least 5% of frame height)
+        if (hipDelta > 0.05) {
+            calStandFrames.push({
+                knee: analysis.kneeAngle,
+                hip: analysis.hipAngle,
+                hipY: analysis.hipY
+            });
+
+            const pct = (calStandFrames.length / CONFIG.CALIBRATION_STAND_FRAMES) * 100;
+            document.getElementById('cal-progress').style.width = pct + '%';
 
             if (calStandFrames.length >= CONFIG.CALIBRATION_STAND_FRAMES) {
                 finishCalibration();
@@ -935,36 +1158,45 @@ function finishCalibration() {
     calPhase = CAL_PHASE.DONE;
     document.getElementById('calibration-overlay').style.display = 'none';
 
-    const avg = (arr, key) => {
-        const valid = arr.filter(f => f[key] !== null);
-        return valid.length > 0 ? valid.reduce((a,b) => a + b[key], 0) / valid.length : null;
-    };
+    // Compute averages
+    const sitKnee = calSitFrames.reduce((a, b) => a + b.knee, 0) / calSitFrames.length;
+    const sitHip = calSitFrames.reduce((a, b) => a + b.hip, 0) / calSitFrames.length;
+    const sitHipY = calSitFrames.reduce((a, b) => a + b.hipY, 0) / calSitFrames.length;
 
-    const sitKnee = avg(calSitFrames, 'knee') || CONFIG.DEFAULT_SITTING_KNEE_ANGLE;
-    const sitHip = avg(calSitFrames, 'hip') || CONFIG.DEFAULT_SITTING_HIP_ANGLE;
-    const sitHipY = avg(calSitFrames, 'hipY');
-    const standKnee = avg(calStandFrames, 'knee') || CONFIG.DEFAULT_STANDING_KNEE_ANGLE;
-    const standHip = avg(calStandFrames, 'hip') || CONFIG.DEFAULT_STANDING_HIP_ANGLE;
-    const standHipY = avg(calStandFrames, 'hipY');
+    const standKnee = calStandFrames.reduce((a, b) => a + b.knee, 0) / calStandFrames.length;
+    const standHip = calStandFrames.reduce((a, b) => a + b.hip, 0) / calStandFrames.length;
+    const standHipY = calStandFrames.reduce((a, b) => a + b.hipY, 0) / calStandFrames.length;
 
+    // Thresholds: place them at a configurable fraction between sit and stand
+    // Using 35% from sitting side = biased toward detecting stands earlier
     const margin = CONFIG.CALIBRATION_THRESHOLD_MARGIN;
+    const threshKnee = sitKnee + (standKnee - sitKnee) * margin;
+    const threshHip = sitHip + (standHip - sitHip) * margin;
+    const threshHipY = sitHipY + (standHipY - sitHipY) * margin;
+    // For hipY: sitting has LARGER y (lower on screen), standing has SMALLER y
+    // threshHipY will be between them
+
     calData = {
-        sitKnee, sitHip, sitHipY, standKnee, standHip, standHipY,
+        sitKnee, sitHip, sitHipY,
+        standKnee, standHip, standHipY,
         thresholds: {
-            kneeAngle: sitKnee + (standKnee - sitKnee) * margin,
-            hipAngle: sitHip + (standHip - sitHip) * margin,
-            hipY: sitHipY + (standHipY - sitHipY) * margin,
+            kneeAngle: threshKnee,
+            hipAngle: threshHip,
+            hipY: threshHipY,
         },
+        // Also store the range for confidence scoring
         kneeRange: Math.abs(standKnee - sitKnee),
         hipRange: Math.abs(standHip - sitHip),
         hipYRange: Math.abs(standHipY - sitHipY),
-        hasKneeCalibration: calSitFrames.filter(f=>f.knee!==null).length > 10 && calStandFrames.filter(f=>f.knee!==null).length > 10,
-        hasHipCalibration: calSitFrames.filter(f=>f.hip!==null).length > 10 && calStandFrames.filter(f=>f.hip!==null).length > 10,
     };
 
     console.log('📐 CALIBRATION COMPLETE');
-    console.log(`   HipY range: ${calData.hipYRange.toFixed(4)}, Knee range: ${calData.kneeRange.toFixed(1)}°`);
+    console.log(`   Sit:   knee=${sitKnee.toFixed(1)}° hip=${sitHip.toFixed(1)}° hipY=${sitHipY.toFixed(4)}`);
+    console.log(`   Stand: knee=${standKnee.toFixed(1)}° hip=${standHip.toFixed(1)}° hipY=${standHipY.toFixed(4)}`);
+    console.log(`   Thresh: knee=${threshKnee.toFixed(1)}° hip=${threshHip.toFixed(1)}° hipY=${threshHipY.toFixed(4)}`);
+    console.log(`   Ranges: knee=${calData.kneeRange.toFixed(1)}° hip=${calData.hipRange.toFixed(1)}° hipY=${calData.hipYRange.toFixed(4)}`);
 
+    // Now start the actual trial
     currentState = 'sitting';
     stateEntryTime = performance.now();
     startActualRecording();
@@ -972,92 +1204,167 @@ function finishCalibration() {
 
 
 // ╔══════════════════════════════════════════════════════════════════╗
-// ║  SIT-TO-STAND DETECTION                                         ║
+// ║  MULTI-SIGNAL SIT-TO-STAND DETECTION                            ║
+// ║                                                                   ║
+// ║  KEY DESIGN PRINCIPLES:                                          ║
+// ║  1. Fuse 3 signals: knee angle, hip angle, hip vertical pos     ║
+// ║  2. Use calibrated per-user thresholds (not fixed)              ║
+// ║  3. 4-state machine with hysteresis prevents oscillation        ║
+// ║  4. Require consecutive frames to confirm transitions           ║
+// ║  5. Velocity used to disambiguate transition direction          ║
 // ╚══════════════════════════════════════════════════════════════════╝
 
 function computePostureScore(analysis) {
-    if (!calData) return { fusedScore: 0, kneeScore: 0, hipScore: 0, hipYScore: 0 };
+    // Returns a value from -1 (fully sitting) to +1 (fully standing)
+    // by fusing all three signals relative to calibrated thresholds
+
+    if (!calData) return 0;
 
     const { thresholds, kneeRange, hipRange, hipYRange } = calData;
-    let kneeScore=0, hipScore=0, hipYScore=0, wKnee=0, wHip=0, wHipY=0;
 
-    if (hipYRange > 0.008 && analysis.hipY !== null) {
-        hipYScore = -(analysis.hipY - thresholds.hipY) / (hipYRange * 0.5);
-        hipYScore = Math.max(-1, Math.min(1, hipYScore));
-        wHipY = 0.45;
-    }
+    // Normalize each signal to [-1, +1] centered on threshold
+    let kneeScore = 0, hipScore = 0, hipYScore = 0;
 
-    if (calData.hasKneeCalibration && analysis.hasKneeData && analysis.kneeAngle !== null && kneeRange > 5) {
+    if (kneeRange > 5) { // Only use if there's meaningful range
         kneeScore = (analysis.kneeAngle - thresholds.kneeAngle) / (kneeRange * 0.5);
         kneeScore = Math.max(-1, Math.min(1, kneeScore));
-        wKnee = 0.35;
     }
-
-    if (calData.hasHipCalibration && analysis.hasHipAngleData && analysis.hipAngle !== null && hipRange > 5) {
+    if (hipRange > 5) {
         hipScore = (analysis.hipAngle - thresholds.hipAngle) / (hipRange * 0.5);
         hipScore = Math.max(-1, Math.min(1, hipScore));
-        wHip = 0.20;
+    }
+    if (hipYRange > 0.01 && analysis.hipY !== null) {
+        // hipY: lower value (higher on screen) = standing
+        // So standing gives negative delta from threshold, sitting gives positive
+        hipYScore = -(analysis.hipY - thresholds.hipY) / (hipYRange * 0.5);
+        hipYScore = Math.max(-1, Math.min(1, hipYScore));
     }
 
-    const totalW = wKnee + wHip + wHipY;
-    if (totalW === 0) return { fusedScore: 0, kneeScore, hipScore, hipYScore };
+    // Weighted fusion: hipY is most camera-angle-robust, then knee, then hip
+    // Weights sum to 1.0
+    const wHipY = 0.40;  // Vertical displacement — most robust
+    const wKnee = 0.35;  // Knee angle — very informative for STS
+    const wHip = 0.25;   // Hip angle — useful but more variable
 
-    return { fusedScore: (wHipY*hipYScore + wKnee*kneeScore + wHip*hipScore) / totalW, kneeScore, hipScore, hipYScore };
+    const fusedScore = wHipY * hipYScore + wKnee * kneeScore + wHip * hipScore;
+
+    return { fusedScore, kneeScore, hipScore, hipYScore };
 }
 
 function detectSitToStand(analysis, currentTimeMs) {
     if (!calData) return;
 
-    const { fusedScore } = computePostureScore(analysis);
+    const scores = computePostureScore(analysis);
+    const { fusedScore } = scores;
     const now = performance.now();
 
+    // Determine what state the current frame suggests
+    // Hysteresis: different thresholds for entering vs leaving a state
+    const STAND_ENTER = 0.30;   // Score > this to consider standing
+    const SIT_ENTER = -0.30;    // Score < this to consider sitting
+    const RISING_THRESH = 0.05; // Score > this AND velocity < 0 to consider rising
+    const LOWERING_THRESH = -0.05;
+
     let frameState = null;
-    if (fusedScore > 0.28) frameState = 'standing';
-    else if (fusedScore < -0.28) frameState = 'sitting';
-    else if (analysis.hipYVelocity < -0.03 && fusedScore > 0.05) frameState = 'rising';
-    else if (analysis.hipYVelocity > 0.03 && fusedScore < -0.05) frameState = 'lowering';
-    else frameState = currentState;
 
-    if (frameState === pendingState) consecutiveStateFrames++;
-    else { pendingState = frameState; consecutiveStateFrames = 1; }
+    if (fusedScore > STAND_ENTER) {
+        frameState = 'standing';
+    } else if (fusedScore < SIT_ENTER) {
+        frameState = 'sitting';
+    } else if (analysis.hipYVelocity < -0.03 && fusedScore > RISING_THRESH) {
+        frameState = 'rising';
+    } else if (analysis.hipYVelocity > 0.03 && fusedScore < LOWERING_THRESH) {
+        frameState = 'lowering';
+    } else {
+        // In the ambiguous zone — maintain current state (hysteresis)
+        frameState = currentState;
+    }
 
+    // Consecutive frame confirmation
+    if (frameState === pendingState) {
+        consecutiveStateFrames++;
+    } else {
+        pendingState = frameState;
+        consecutiveStateFrames = 1;
+    }
+
+    // State transition requires consecutive frames AND minimum time in current state
     const minFrames = (frameState === 'standing') ? CONFIG.STAND_CONFIRMATION_FRAMES :
                       (frameState === 'sitting') ? CONFIG.SIT_CONFIRMATION_FRAMES :
                       CONFIG.MIN_CONSECUTIVE_FRAMES;
 
-    if (frameState !== currentState && consecutiveStateFrames >= minFrames && (now - stateEntryTime) >= CONFIG.MIN_TRANSITION_MS) {
+    const timeInState = now - stateEntryTime;
+
+    if (frameState !== currentState &&
+        consecutiveStateFrames >= minFrames &&
+        timeInState >= CONFIG.MIN_TRANSITION_MS) {
+
         const prevState = currentState;
         currentState = frameState;
         stateEntryTime = now;
 
         standEvents.push({
-            time: currentTimeMs, type: frameState, fromState: prevState,
-            kneeAngle: analysis.kneeAngle, hipAngle: analysis.hipAngle,
-            hipY: analysis.hipY, fusedScore, velocity: analysis.hipYVelocity,
+            time: currentTimeMs,
+            type: frameState,
+            fromState: prevState,
+            kneeAngle: analysis.kneeAngle,
+            hipAngle: analysis.hipAngle,
+            hipY: analysis.hipY,
+            fusedScore,
+            velocity: analysis.hipYVelocity,
         });
 
+        // Count a stand: sitting/rising → standing
         if (frameState === 'standing' && (prevState === 'sitting' || prevState === 'rising')) {
             standCount++;
             updateStandCountDisplay();
             flashFeedback('stand');
+            console.log(`🏋️ Stand #${standCount} at ${(currentTimeMs/1000).toFixed(1)}s — score=${fusedScore.toFixed(2)} knee=${analysis.kneeAngle.toFixed(0)}° hip=${analysis.hipAngle.toFixed(0)}°`);
         }
 
         if (frameState === 'sitting' && (prevState === 'standing' || prevState === 'lowering')) {
             flashFeedback('sit');
+            console.log(`🪑 Sit at ${(currentTimeMs/1000).toFixed(1)}s — score=${fusedScore.toFixed(2)}`);
         }
     }
+
+    // Update debug panel
+    if (CONFIG.DEBUG) {
+        updateDebugPanel(analysis, scores, fusedScore);
+    }
+}
+
+function updateDebugPanel(analysis, scores, fusedScore) {
+    const panel = document.getElementById('debug-panel');
+    if (!panel.classList.contains('visible')) return;
+
+    document.getElementById('dbg-knee').textContent = analysis.kneeAngle.toFixed(0) + '°';
+    document.getElementById('dbg-hip').textContent = analysis.hipAngle.toFixed(0) + '°';
+    document.getElementById('dbg-hipy').textContent = analysis.hipY !== null ? analysis.hipY.toFixed(4) : '--';
+    document.getElementById('dbg-vel').textContent = analysis.hipYVelocity.toFixed(4);
+    document.getElementById('dbg-state').textContent = currentState + ' (' + fusedScore.toFixed(2) + ')';
+    document.getElementById('dbg-conf').textContent =
+        `K:${scores.kneeScore.toFixed(2)} H:${scores.hipScore.toFixed(2)} Y:${scores.hipYScore.toFixed(2)}`;
+
+    const fps = frameTimestamps.length > 2 ?
+        ((frameTimestamps.length - 1) / (frameTimestamps[frameTimestamps.length - 1] - frameTimestamps[0])) * 1000 : 0;
+    document.getElementById('dbg-fps').textContent = fps.toFixed(0);
 }
 
 function flashFeedback(type) {
     const banner = document.getElementById('feedback-banner');
     const msg = document.getElementById('feedback-msg');
+
     if (type === 'stand') {
-        banner.style.background = 'rgba(26,26,26,0.9)'; banner.style.color = '#fff';
+        banner.style.background = 'rgba(26, 26, 26, 0.9)';
+        banner.style.color = '#fff';
         msg.textContent = `Stand ${standCount} ✓`;
     } else {
-        banner.style.background = 'rgba(100,100,100,0.85)'; banner.style.color = 'white';
+        banner.style.background = 'rgba(100, 100, 100, 0.85)';
+        banner.style.color = 'white';
         msg.textContent = 'Seated ↓';
     }
+
     banner.style.display = 'block';
     clearTimeout(banner._hideTimeout);
     banner._hideTimeout = setTimeout(() => { banner.style.display = 'none'; }, 600);
@@ -1065,7 +1372,8 @@ function flashFeedback(type) {
 
 function updateStandCountDisplay() {
     document.getElementById('stand-count').textContent = standCount;
-    document.getElementById('center-timer').setAttribute('data-stands', standCount);
+    const ct = document.getElementById('center-timer');
+    ct.setAttribute('data-stands', standCount);
 }
 
 
@@ -1077,38 +1385,107 @@ function drawPoseSkeleton(landmarks, canvas) {
     const ctx = canvasCtx;
     ctx.save();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(document.getElementById('inputVideo'), 0, 0, canvas.width, canvas.height);
 
-    if (!landmarks || landmarks.length === 0) { ctx.restore(); return; }
+    const video = document.getElementById('inputVideo');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    const lm = landmarks, w = canvas.width, h = canvas.height;
+    if (!landmarks || landmarks.length === 0) {
+        ctx.restore();
+        return;
+    }
+
+    const lm = landmarks;
+    const w = canvas.width;
+    const h = canvas.height;
+
     const connections = [
-        [POSE.LEFT_SHOULDER,POSE.RIGHT_SHOULDER],[POSE.LEFT_SHOULDER,POSE.LEFT_HIP],
-        [POSE.RIGHT_SHOULDER,POSE.RIGHT_HIP],[POSE.LEFT_HIP,POSE.RIGHT_HIP],
-        [POSE.LEFT_HIP,POSE.LEFT_KNEE],[POSE.LEFT_KNEE,POSE.LEFT_ANKLE],
-        [POSE.RIGHT_HIP,POSE.RIGHT_KNEE],[POSE.RIGHT_KNEE,POSE.RIGHT_ANKLE],
-        [POSE.LEFT_SHOULDER,13],[13,POSE.LEFT_WRIST],
-        [POSE.RIGHT_SHOULDER,14],[14,POSE.RIGHT_WRIST],
+        [POSE.LEFT_SHOULDER, POSE.RIGHT_SHOULDER],
+        [POSE.LEFT_SHOULDER, POSE.LEFT_HIP],
+        [POSE.RIGHT_SHOULDER, POSE.RIGHT_HIP],
+        [POSE.LEFT_HIP, POSE.RIGHT_HIP],
+        [POSE.LEFT_HIP, POSE.LEFT_KNEE],
+        [POSE.LEFT_KNEE, POSE.LEFT_ANKLE],
+        [POSE.LEFT_ANKLE, POSE.LEFT_HEEL],
+        [POSE.RIGHT_HIP, POSE.RIGHT_KNEE],
+        [POSE.RIGHT_KNEE, POSE.RIGHT_ANKLE],
+        [POSE.RIGHT_ANKLE, POSE.RIGHT_HEEL],
+        [POSE.LEFT_SHOULDER, 13], [13, POSE.LEFT_WRIST],
+        [POSE.RIGHT_SHOULDER, 14], [14, POSE.RIGHT_WRIST],
     ];
 
-    const isUp = recording && (currentState === 'standing' || currentState === 'rising');
-    const lineColor = recording ? (isUp ? 'rgba(26,26,26,0.8)' : 'rgba(100,100,100,0.7)') : 'rgba(255,255,255,0.4)';
-    const dotColor = recording ? (isUp ? '#1a1a1a' : '#666') : '#ffffff';
+    let lineColor, dotColor;
+    if (recording) {
+        if (currentState === 'standing') {
+            lineColor = 'rgba(26, 26, 26, 0.8)';
+            dotColor = '#1a1a1a';
+        } else if (currentState === 'sitting') {
+            lineColor = 'rgba(100, 100, 100, 0.7)';
+            dotColor = '#666';
+        } else if (currentState === 'rising') {
+            lineColor = 'rgba(50, 50, 50, 0.8)';
+            dotColor = '#333';
+        } else if (currentState === 'lowering') {
+            lineColor = 'rgba(80, 80, 80, 0.7)';
+            dotColor = '#555';
+        } else {
+            lineColor = 'rgba(255, 255, 255, 0.5)';
+            dotColor = '#ffffff';
+        }
+    } else {
+        lineColor = 'rgba(255, 255, 255, 0.4)';
+        dotColor = '#ffffff';
+    }
 
-    ctx.strokeStyle = lineColor; ctx.lineWidth = 3; ctx.lineCap = 'round';
-    for (const [a,b] of connections) {
-        if (a<lm.length && b<lm.length && landmarkUsable(lm[a]) && landmarkUsable(lm[b])) {
-            ctx.beginPath(); ctx.moveTo(lm[a].x*w, lm[a].y*h); ctx.lineTo(lm[b].x*w, lm[b].y*h); ctx.stroke();
+    ctx.strokeStyle = lineColor;
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+
+    for (const [a, b] of connections) {
+        if (a < lm.length && b < lm.length && landmarkVisible(lm[a]) && landmarkVisible(lm[b])) {
+            ctx.beginPath();
+            ctx.moveTo(lm[a].x * w, lm[a].y * h);
+            ctx.lineTo(lm[b].x * w, lm[b].y * h);
+            ctx.stroke();
         }
     }
 
-    for (const idx of [POSE.LEFT_SHOULDER,POSE.RIGHT_SHOULDER,POSE.LEFT_HIP,POSE.RIGHT_HIP,POSE.LEFT_KNEE,POSE.RIGHT_KNEE,POSE.LEFT_ANKLE,POSE.RIGHT_ANKLE]) {
-        if (idx<lm.length && landmarkUsable(lm[idx])) {
-            const x=lm[idx].x*w, y=lm[idx].y*h;
-            ctx.fillStyle=dotColor; ctx.globalAlpha=0.2; ctx.beginPath(); ctx.arc(x,y,10,0,Math.PI*2); ctx.fill();
-            ctx.globalAlpha=1; ctx.beginPath(); ctx.arc(x,y,6,0,Math.PI*2); ctx.fill();
+    const keyJoints = [
+        POSE.LEFT_SHOULDER, POSE.RIGHT_SHOULDER,
+        POSE.LEFT_HIP, POSE.RIGHT_HIP,
+        POSE.LEFT_KNEE, POSE.RIGHT_KNEE,
+        POSE.LEFT_ANKLE, POSE.RIGHT_ANKLE,
+    ];
+
+    for (const idx of keyJoints) {
+        if (idx < lm.length && landmarkVisible(lm[idx])) {
+            const x = lm[idx].x * w;
+            const y = lm[idx].y * h;
+
+            ctx.fillStyle = dotColor;
+            ctx.globalAlpha = 0.2;
+            ctx.beginPath();
+            ctx.arc(x, y, 10, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.globalAlpha = 1;
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, Math.PI * 2);
+            ctx.fill();
         }
     }
+
+    // Show smoothed knee angle annotation during recording
+    if (recording && smoothedKneeAngle !== null) {
+        if (landmarkVisible(lm[POSE.LEFT_KNEE])) {
+            const kx = lm[POSE.LEFT_KNEE].x * w;
+            const ky = lm[POSE.LEFT_KNEE].y * h;
+            ctx.font = '600 14px -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
+            ctx.fillStyle = dotColor;
+            ctx.globalAlpha = 0.9;
+            ctx.fillText(`${Math.round(smoothedKneeAngle)}°`, kx + 15, ky - 5);
+        }
+    }
+
     ctx.restore();
 }
 
@@ -1118,62 +1495,93 @@ function drawPoseSkeleton(landmarks, canvas) {
 // ╚══════════════════════════════════════════════════════════════════╝
 
 function onPoseResults(result, canvas) {
-    frameTimestamps.push(performance.now());
+    const now = performance.now();
+    frameTimestamps.push(now);
     if (frameTimestamps.length > 60) frameTimestamps.shift();
 
     const landmarks = result.landmarks && result.landmarks.length > 0 ? result.landmarks[0] : null;
+
     drawPoseSkeleton(landmarks, canvas);
 
     if (landmarks && landmarks.length > 0) {
         poseDetected = true;
         lastPoseTime = Date.now();
+
         const analysis = analyzePose(landmarks);
 
-        if (!recording && calPhase === CAL_PHASE.NONE) updatePositionFeedback(landmarks, analysis);
+        if (!recording && calPhase === CAL_PHASE.NONE) {
+            updatePositionFeedback(landmarks, analysis);
+        }
+
+        // Feed calibration
         if (calPhase === CAL_PHASE.SITTING || calPhase === CAL_PHASE.STANDING) {
             if (analysis) feedCalibrationFrame(analysis);
         }
 
         if (recording && analysis) {
-            const t = Date.now() - startTime;
-            if (analysis.kneeAngle !== null) kneeAngleHistory.push(analysis.kneeAngle);
-            if (analysis.hipAngle !== null) hipAngleHistory.push(analysis.hipAngle);
+            const currentTimeMs = Date.now() - startTime;
+
+            kneeAngleHistory.push(analysis.kneeAngle);
+            hipAngleHistory.push(analysis.hipAngle);
             if (analysis.hipY !== null) hipYHistory.push(analysis.hipY);
-            timeHistory.push(t);
+            timeHistory.push(currentTimeMs);
 
             frameData.push({
-                t, kneeAngle: analysis.rawKneeAngle, hipAngle: analysis.rawHipAngle,
-                smoothedKnee: analysis.kneeAngle, smoothedHip: analysis.hipAngle,
-                hipY: analysis.hipY, hipYVelocity: analysis.hipYVelocity, lm: analysis.landmarks
+                t: currentTimeMs,
+                kneeAngle: analysis.rawKneeAngle,
+                hipAngle: analysis.rawHipAngle,
+                smoothedKnee: analysis.kneeAngle,
+                smoothedHip: analysis.hipAngle,
+                hipY: analysis.hipY,
+                hipYVelocity: analysis.hipYVelocity,
+                lm: analysis.landmarks
             });
 
-            detectSitToStand(analysis, t);
+            detectSitToStand(analysis, currentTimeMs);
         }
     } else {
         poseDetected = false;
-        if (!recording && calPhase === CAL_PHASE.NONE) updatePositionFeedback(null, null);
+        if (!recording && calPhase === CAL_PHASE.NONE) {
+            updatePositionFeedback(null, null);
+        }
     }
 }
 
 function updatePositionFeedback(landmarks, analysis) {
     const text = document.getElementById('position-text');
-    if (!landmarks) { text.textContent = 'No body detected — step into view'; text.className = 'position-text error'; return; }
 
-    const lm = landmarks;
-    if (!landmarkUsable(lm[POSE.LEFT_HIP]) && !landmarkUsable(lm[POSE.RIGHT_HIP])) {
-        text.textContent = 'Move so the camera can see your body'; text.className = 'position-text warning'; return;
+    if (!landmarks) {
+        text.textContent = 'No body detected — step back so camera sees you';
+        text.className = 'position-text error';
+        return;
     }
 
-    if (analysis && analysis.hipY !== null) {
-        if (analysis.kneeAngle !== null && analysis.kneeAngle < 140) {
-            text.textContent = 'Ready! Tap "Begin" to start'; text.className = 'position-text ready';
-        } else if (analysis.kneeAngle !== null) {
-            text.textContent = 'Please sit down in your chair first'; text.className = 'position-text warning';
-        } else {
-            text.textContent = 'Ready! Tap "Begin" to start'; text.className = 'position-text ready';
-        }
+    const lm = landmarks;
+    const leftLeg = landmarkVisible(lm[POSE.LEFT_HIP]) && landmarkVisible(lm[POSE.LEFT_KNEE]) && landmarkVisible(lm[POSE.LEFT_ANKLE]);
+    const rightLeg = landmarkVisible(lm[POSE.RIGHT_HIP]) && landmarkVisible(lm[POSE.RIGHT_KNEE]) && landmarkVisible(lm[POSE.RIGHT_ANKLE]);
+    const shouldersVisible = landmarkVisible(lm[POSE.LEFT_SHOULDER]) || landmarkVisible(lm[POSE.RIGHT_SHOULDER]);
+
+    if (!leftLeg && !rightLeg) {
+        text.textContent = 'Step back — at least one full leg needs to be visible';
+        text.className = 'position-text warning';
+        return;
+    }
+
+    if (!shouldersVisible) {
+        text.textContent = 'Shoulders not visible — adjust camera angle';
+        text.className = 'position-text warning';
+        return;
+    }
+
+    if (analysis && analysis.kneeAngle < 140) {
+        text.textContent = 'Ready! Tap "Begin" to start';
+        text.className = 'position-text ready';
+    } else if (analysis) {
+        text.textContent = 'Please sit down in your chair first';
+        text.className = 'position-text warning';
     } else {
-        text.textContent = 'Position your body in view'; text.className = 'position-text';
+        text.textContent = 'Position your full body in view';
+        text.className = 'position-text';
     }
 }
 
@@ -1184,238 +1592,305 @@ function updatePositionFeedback(landmarks, analysis) {
 
 function startActualRecording() {
     readyToStart = false;
+
     document.getElementById('position-badge').style.display = 'none';
 
     recording = true;
     startTime = Date.now();
     lastPoseTime = Date.now();
-    const duration = currentTrialDuration();
 
-    standEvents=[]; frameData=[]; kneeAngleHistory=[]; hipAngleHistory=[]; hipYHistory=[];
-    timeHistory=[]; hipYVelocityBuffer=[]; hipYTimestampBuffer=[];
-    currentState='sitting'; stateEntryTime=performance.now(); pendingState=null; consecutiveStateFrames=0; standCount=0;
+    // Reset per-trial state
+    standEvents = [];
+    frameData = [];
+    kneeAngleHistory = [];
+    hipAngleHistory = [];
+    hipYHistory = [];
+    timeHistory = [];
+    // Keep smoothing state — it was warmed up during calibration
+    hipYVelocityBuffer = [];
+    hipYTimestampBuffer = [];
+    currentState = 'sitting';
+    stateEntryTime = performance.now();
+    pendingState = null;
+    consecutiveStateFrames = 0;
+    standCount = 0;
 
     updateStandCountDisplay();
 
     const ct = document.getElementById('center-timer');
     ct.style.display = 'block';
-    const secs = Math.ceil(duration/1000);
-    ct.textContent = `00:${secs.toString().padStart(2,'0')}`;
+    ct.textContent = '00:30';
     ct.setAttribute('data-stands', '0');
 
     clearAllTimers();
 
     mainTimerInterval = setInterval(() => {
         if (!recording) return;
+
         const elapsed = Date.now() - startTime;
-        const remaining = Math.max(0, (duration - elapsed) / 1000);
+        const remaining = Math.max(0, (CONFIG.TRIAL_DURATION_MS - elapsed) / 1000);
 
-        if (!poseDetected && (Date.now() - lastPoseTime) > CONFIG.MAX_POSE_LOSS_MS) { restartTrial('poseLost'); return; }
-        if (poseDetected) lastPoseTime = Date.now();
+        if (!poseDetected) {
+            const since = Date.now() - lastPoseTime;
+            if (since > CONFIG.MAX_POSE_LOSS_MS) {
+                restartTrial('poseLost');
+                return;
+            }
+        } else {
+            lastPoseTime = Date.now();
+        }
 
-        const s = Math.ceil(remaining);
-        ct.textContent = `00:${s.toString().padStart(2,'0')}`;
+        const secs = Math.ceil(remaining);
+        ct.textContent = `00:${secs.toString().padStart(2, '0')}`;
         ct.setAttribute('data-stands', standCount);
-        document.getElementById('time-remaining').textContent = `00:${s.toString().padStart(2,'0')}`;
 
-        if (elapsed >= duration) stopRecording();
+        document.getElementById('time-remaining').textContent = `00:${secs.toString().padStart(2, '0')}`;
+
+        if (elapsed >= CONFIG.TRIAL_DURATION_MS) {
+            stopRecording();
+        }
     }, 100);
 
-    if (!currentTrialIsPractice()) {
-        inactivityInterval = setInterval(() => {
-            if (!recording) return;
-            if ((Date.now() - startTime) > CONFIG.MAX_INACTIVITY_MS && standCount === 0) restartTrial('inactivity');
-        }, 1000);
-    }
+    inactivityInterval = setInterval(() => {
+        if (!recording) return;
+        const elapsed = Date.now() - startTime;
+        if (elapsed > CONFIG.MAX_INACTIVITY_MS && standCount === 0) {
+            restartTrial('inactivity');
+        }
+    }, 1000);
 
-    stopTimeoutId = setTimeout(() => { if (recording) stopRecording(); }, duration + 500);
+    stopTimeoutId = setTimeout(() => {
+        if (recording) stopRecording();
+    }, CONFIG.TRIAL_DURATION_MS + 500);
 }
 
 function stopRecording() {
     if (!recording) return;
     recording = false;
 
-    document.getElementById('center-timer').style.display = 'none';
+    const ct = document.getElementById('center-timer');
+    ct.style.display = 'none';
+
     clearAllTimers();
+
     document.getElementById('feedback-banner').style.display = 'none';
     document.getElementById('position-badge').style.display = 'block';
 
     const posText = document.getElementById('position-text');
-    posText.textContent = 'Analyzing...'; posText.className = 'position-text';
+    posText.textContent = 'Analyzing results...';
+    posText.className = 'position-text';
 
-    const isPractice = currentTrialIsPractice();
-    if (!isPractice && standCount < CONFIG.MIN_STANDS_REQUIRED) { restartTrial('tooFewStands'); return; }
+    if (standCount < CONFIG.MIN_STANDS_REQUIRED) {
+        restartTrial('tooFewStands');
+        return;
+    }
 
     const result = calculateTrialResult();
     saveTrialData(result);
+
     allTrialResults.push(result);
     trialIndex++;
 
     if (trialIndex < CONFIG.TOTAL_TRIALS) {
         resetSignalState();
-        posText.textContent = 'Ready for next trial'; posText.className = 'position-text ready';
+        posText.textContent = 'Ready for next trial';
+        posText.className = 'position-text ready';
+
         setTimeout(() => updateTrialUI(), 800);
     } else {
-        showFinalResults();
+        showQuestionnaire();
     }
 }
 
 function restartTrial(reason) {
     recording = false;
     clearAllTimers();
+
     document.getElementById('center-timer').style.display = 'none';
     document.getElementById('feedback-banner').style.display = 'none';
     document.getElementById('calibration-overlay').style.display = 'none';
     document.getElementById('position-badge').style.display = 'block';
+
     resetSignalState();
 
-    const messages = {
-        poseLost: { title: 'Body Lost', sub: 'Keep your body visible to the camera throughout the test.' },
-        inactivity: { title: 'No Movement Detected', sub: 'Stand up and sit down repeatedly.' },
-        tooFewStands: { title: 'Too Few Stands', sub: 'Make sure to fully stand up and sit down each time.' },
-    };
-    const msg = messages[reason] || messages.inactivity;
-
     const overlay = document.getElementById('trial-overlay');
-    document.getElementById('trial-overlay-title').innerHTML = `
+    const title = document.getElementById('trial-overlay-title');
+
+    const messages = {
+        poseLost: { title: 'Body Lost', sub: 'Keep your full body visible to the camera throughout the test.' },
+        inactivity: { title: 'No Movement Detected', sub: 'Stand up and sit down repeatedly — go as fast as you safely can.' },
+        tooFewStands: { title: 'Too Few Stands', sub: 'Try to complete more stands in 30 seconds. Make sure to fully stand up and sit down each time.' },
+    };
+
+    const msg = messages[reason] || messages.inactivity;
+    title.innerHTML = `
         <div style="color: #e74c3c; font-size: 2rem; margin-bottom: 0.75rem;">${msg.title}</div>
         <div style="color: #888; font-size: 1.1rem; font-weight: 400;">${msg.sub}</div>
     `;
+
     overlay.style.display = 'flex';
     readyToStart = true;
 }
 
 function resetSignalState() {
-    smoothedKneeAngle=null; smoothedHipAngle=null; smoothedHipY=null;
-    prevRawKneeAngle=null; prevRawHipAngle=null; prevRawHipY=null;
-    hipYVelocityBuffer=[]; hipYTimestampBuffer=[];
-    calPhase=CAL_PHASE.NONE; calSitFrames=[]; calStandFrames=[]; calData=null;
-    currentState='unknown'; pendingState=null; consecutiveStateFrames=0;
+    smoothedKneeAngle = null;
+    smoothedHipAngle = null;
+    smoothedHipY = null;
+    prevRawKneeAngle = null;
+    prevRawHipAngle = null;
+    prevRawHipY = null;
+    hipYVelocityBuffer = [];
+    hipYTimestampBuffer = [];
+    calPhase = CAL_PHASE.NONE;
+    calSitFrames = [];
+    calStandFrames = [];
+    calData = null;
+    currentState = 'unknown';
+    pendingState = null;
+    consecutiveStateFrames = 0;
 }
 
 function clearAllTimers() {
-    if (mainTimerInterval) { clearInterval(mainTimerInterval); mainTimerInterval=null; }
-    if (inactivityInterval) { clearInterval(inactivityInterval); inactivityInterval=null; }
-    if (stopTimeoutId) { clearTimeout(stopTimeoutId); stopTimeoutId=null; }
+    if (mainTimerInterval) { clearInterval(mainTimerInterval); mainTimerInterval = null; }
+    if (inactivityInterval) { clearInterval(inactivityInterval); inactivityInterval = null; }
+    if (stopTimeoutId) { clearTimeout(stopTimeoutId); stopTimeoutId = null; }
 }
 
 
 // ╔══════════════════════════════════════════════════════════════════╗
-// ║  METRICS                                                         ║
+// ║  CLINICAL METRICS                                                ║
 // ╚══════════════════════════════════════════════════════════════════╝
 
 function calculateTrialResult() {
-    const duration = (timeHistory[timeHistory.length-1] || currentTrialDuration()) / 1000;
-    const standTimes = standEvents.filter(e => e.type==='standing' && (e.fromState==='sitting'||e.fromState==='rising')).map(e => e.time);
+    const duration = (timeHistory[timeHistory.length - 1] || CONFIG.TRIAL_DURATION_MS) / 1000;
+
+    const standTimes = standEvents
+        .filter(e => e.type === 'standing' && (e.fromState === 'sitting' || e.fromState === 'rising'))
+        .map(e => e.time);
+
     const intervals = [];
-    for (let i=1; i<standTimes.length; i++) intervals.push(standTimes[i]-standTimes[i-1]);
-    const avgInterval = intervals.length > 0 ? intervals.reduce((a,b)=>a+b,0)/intervals.length : 0;
+    for (let i = 1; i < standTimes.length; i++) {
+        intervals.push(standTimes[i] - standTimes[i - 1]);
+    }
+
+    const avgInterval = intervals.length > 0 ? intervals.reduce((a, b) => a + b, 0) / intervals.length : 0;
 
     let rhythmCV = 0;
     if (intervals.length > 1) {
         const mean = avgInterval;
-        const variance = intervals.reduce((a,b)=>a+Math.pow(b-mean,2),0)/intervals.length;
-        rhythmCV = (Math.sqrt(variance)/mean)*100;
+        const variance = intervals.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / intervals.length;
+        rhythmCV = (Math.sqrt(variance) / mean) * 100;
     }
 
     let fatigueIndex = 0;
     if (intervals.length >= 3) {
-        const third = Math.floor(intervals.length/3);
-        const firstAvg = intervals.slice(0,third).reduce((a,b)=>a+b,0)/third;
-        const lastAvg = intervals.slice(-third).reduce((a,b)=>a+b,0)/third;
-        fatigueIndex = ((lastAvg-firstAvg)/firstAvg)*100;
+        const third = Math.floor(intervals.length / 3);
+        const firstThird = intervals.slice(0, third);
+        const lastThird = intervals.slice(-third);
+        const firstAvg = firstThird.reduce((a, b) => a + b, 0) / firstThird.length;
+        const lastAvg = lastThird.reduce((a, b) => a + b, 0) / lastThird.length;
+        fatigueIndex = ((lastAvg - firstAvg) / firstAvg) * 100;
     }
 
+    const standKneeAngles = standEvents
+        .filter(e => e.type === 'standing')
+        .map(e => e.kneeAngle);
+    const avgStandKneeAngle = standKneeAngles.length > 0 ?
+        standKneeAngles.reduce((a, b) => a + b, 0) / standKneeAngles.length : 0;
+
     const avgFPS = frameTimestamps.length > 10 ?
-        ((frameTimestamps.length-1)/(frameTimestamps[frameTimestamps.length-1]-frameTimestamps[0]))*1000 : 0;
+        ((frameTimestamps.length - 1) / (frameTimestamps[frameTimestamps.length - 1] - frameTimestamps[0])) * 1000 : 0;
 
     return {
-        trialNumber: trialIndex+1,
-        isPractice: currentTrialIsPractice(),
-        trialDurationMs: currentTrialDuration(),
-        standCount, duration, avgIntervalMs: avgInterval,
-        rhythmCV, fatigueIndex, intervals, standTimes,
-        avgFPS: Math.round(avgFPS*10)/10,
+        trialNumber: trialIndex + 1,
+        standCount,
+        duration,
+        avgIntervalMs: avgInterval,
+        rhythmCV,
+        fatigueIndex,
+        avgStandKneeAngle,
+        intervals,
+        standTimes,
+        avgFPS: Math.round(avgFPS * 10) / 10,
         framesRecorded: frameData.length,
         calibration: calData ? {
-            sitKnee:calData.sitKnee, sitHip:calData.sitHip, sitHipY:calData.sitHipY,
-            standKnee:calData.standKnee, standHip:calData.standHip, standHipY:calData.standHipY,
-            kneeRange:calData.kneeRange, hipRange:calData.hipRange, hipYRange:calData.hipYRange,
+            sitKnee: calData.sitKnee,
+            sitHip: calData.sitHip,
+            sitHipY: calData.sitHipY,
+            standKnee: calData.standKnee,
+            standHip: calData.standHip,
+            standHipY: calData.standHipY,
+            kneeRange: calData.kneeRange,
+            hipRange: calData.hipRange,
+            hipYRange: calData.hipYRange,
         } : null,
         timestamp: new Date().toISOString()
     };
 }
 
 function saveTrialData(result) {
-    db.collection("STS_Results").doc(participantID).collection("Trials").doc(`trial_${result.trialNumber}`).set(result)
+    const trialDoc = `trial_${result.trialNumber}`;
+
+    db.collection("STS_Results").doc(participantID).collection("Trials").doc(trialDoc).set(result)
+        .then(() => console.log(`✅ Trial ${result.trialNumber} result saved`))
         .catch(e => console.warn("Trial save failed:", e));
 
     const BATCH_SIZE = 50;
     for (let i = 0; i < frameData.length; i += BATCH_SIZE) {
-        const batch = frameData.slice(i, i+BATCH_SIZE);
-        const batchIdx = Math.floor(i/BATCH_SIZE);
-        db.collection("STS_PoseLandmarks").doc(`${participantID}_trial${result.trialNumber}_batch${batchIdx}`).set({
-            participantID, trialNumber: result.trialNumber, batchIndex: batchIdx,
-            frameCount: batch.length, timestamp: new Date().toISOString(),
-            timestamps: batch.map(f=>f.t), kneeAngles: batch.map(f=>f.kneeAngle),
-            hipAngles: batch.map(f=>f.hipAngle), smoothedKnees: batch.map(f=>f.smoothedKnee),
-            smoothedHips: batch.map(f=>f.smoothedHip), hipY: batch.map(f=>f.hipY),
-            hipYVelocity: batch.map(f=>f.hipYVelocity),
+        const batch = frameData.slice(i, i + BATCH_SIZE);
+        const batchIdx = Math.floor(i / BATCH_SIZE);
+        const batchDoc = `${participantID}_trial${result.trialNumber}_batch${batchIdx}`;
+
+        db.collection("STS_PoseLandmarks").doc(batchDoc).set({
+            participantID,
+            trialNumber: result.trialNumber,
+            batchIndex: batchIdx,
+            frameCount: batch.length,
+            timestamp: new Date().toISOString(),
+            timestamps: batch.map(f => f.t),
+            kneeAngles: batch.map(f => f.kneeAngle),
+            hipAngles: batch.map(f => f.hipAngle),
+            smoothedKnees: batch.map(f => f.smoothedKnee),
+            smoothedHips: batch.map(f => f.smoothedHip),
+            hipY: batch.map(f => f.hipY),
+            hipYVelocity: batch.map(f => f.hipYVelocity),
         }).catch(e => console.warn("Batch save failed:", e));
     }
 }
 
 
 // ╔══════════════════════════════════════════════════════════════════╗
-// ║  UI                                                              ║
+// ║  UI UPDATES                                                      ║
 // ╚══════════════════════════════════════════════════════════════════╝
 
 function updateTrialUI() {
+    const num = trialIndex + 1;
+
     resetSignalState();
 
-    const isPractice = currentTrialIsPractice();
-    const duration = currentTrialDuration();
-    const secs = Math.ceil(duration/1000);
-
-    const badge = document.getElementById('trial-badge');
-    badge.textContent = isPractice ? 'Practice' : 'Test';
-    badge.className = isPractice ? 'trial-badge practice' : 'trial-badge';
-
-    document.getElementById('trial-title').textContent = isPractice ? `Practice (${secs}s)` : '30-Second Sit to Stand';
+    document.getElementById('trial-badge').textContent = `Trial ${num} of ${CONFIG.TOTAL_TRIALS}`;
     document.getElementById('stand-count').textContent = '0';
-    document.getElementById('time-remaining').textContent = `00:${secs.toString().padStart(2,'0')}`;
+    document.getElementById('time-remaining').textContent = '00:30';
 
     const ct = document.getElementById('center-timer');
-    ct.textContent = `00:${secs.toString().padStart(2,'0')}`;
+    ct.textContent = '00:30';
     ct.setAttribute('data-stands', '0');
 
     let prevInfo = '';
-    if (allTrialResults.length > 0 && allTrialResults[allTrialResults.length-1].isPractice) {
+    if (allTrialResults.length > 0) {
+        const last = allTrialResults[allTrialResults.length - 1];
         prevInfo = `
-            <div style="background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:1rem;margin-bottom:1.5rem;">
-                <div style="font-size:1rem;color:#888;">Practice: <strong style="color:#1a1a1a;">${allTrialResults[allTrialResults.length-1].standCount} stands</strong></div>
+            <div style="background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem;">
+                <div style="font-size: 1.1rem; color: #1a1a1a;">Previous trial: <strong>${last.standCount} stands</strong></div>
             </div>
         `;
     }
 
-    const instruction = document.getElementById('trial-overlay-instruction');
-    if (isPractice) {
-        document.getElementById('trial-overlay-title').innerHTML = 'Practice Round';
-        instruction.innerHTML = `
-            This is a <strong>10-second practice</strong> to get comfortable.<br>
-            Stand up and sit down as <strong class="danger">FAST</strong> as you can.<br>
-            Cross your arms over your chest. Fully sit between each stand.
-        `;
-    } else {
-        document.getElementById('trial-overlay-title').innerHTML = `${prevInfo}30-Second Test`;
-        instruction.innerHTML = `
-            This is the <strong>real test</strong> — 30 seconds.<br>
-            Stand up and sit down as <strong class="danger">FAST</strong> as you can.<br>
-            Cross your arms over your chest. Fully sit between each stand.
-        `;
-    }
+    const overlay = document.getElementById('trial-overlay');
+    const title = document.getElementById('trial-overlay-title');
+    title.innerHTML = `${prevInfo}Trial ${num} of ${CONFIG.TOTAL_TRIALS}`;
 
-    document.getElementById('trial-overlay').style.display = 'flex';
+    overlay.style.display = 'flex';
     readyToStart = true;
 }
 
@@ -1428,62 +1903,265 @@ function updateLoadingProgress(pct, status) {
 
 
 // ╔══════════════════════════════════════════════════════════════════╗
-// ║  RESULTS — Simple: just the count (like tapping)                ║
+// ║  QUESTIONNAIRE                                                   ║
+// ╚══════════════════════════════════════════════════════════════════╝
+
+function showQuestionnaire() {
+    document.getElementById('page-webcam').style.display = 'none';
+
+    const overlay = document.getElementById('questionnaire-overlay');
+    overlay.innerHTML = `
+        <div class="questionnaire-card">
+            <div class="q-title">Quick Questions</div>
+            <div class="q-subtitle">Brief questions about your experience</div>
+
+            <form id="q-form">
+                <div class="q-group">
+                    <label class="q-label">Do you have any known neurological conditions?</label>
+                    <div class="radio-row">
+                        <label><input type="radio" name="neurological" value="no" required> No</label>
+                        <label><input type="radio" name="neurological" value="yes"> Yes</label>
+                    </div>
+                </div>
+
+                <div class="q-group">
+                    <label class="q-label">Do you have any joint pain (knees, hips) that affects standing?</label>
+                    <div class="radio-row">
+                        <label><input type="radio" name="jointPain" value="no" required> No</label>
+                        <label><input type="radio" name="jointPain" value="yes"> Yes</label>
+                    </div>
+                </div>
+
+                <div class="q-group">
+                    <label class="q-label">History of injury or surgery affecting legs/hips?</label>
+                    <div class="radio-row">
+                        <label><input type="radio" name="legInjury" value="no" required> No</label>
+                        <label><input type="radio" name="legInjury" value="yes"> Yes</label>
+                    </div>
+                </div>
+
+                <div class="q-group">
+                    <label class="q-label">Did the camera accurately count your stands?</label>
+                    <div class="radio-row">
+                        <label><input type="radio" name="accuracy" value="yes" required> Yes, accurate</label>
+                        <label><input type="radio" name="accuracy" value="close"> Close, off by 1-2</label>
+                        <label><input type="radio" name="accuracy" value="no"> No, significantly off</label>
+                    </div>
+                </div>
+
+                <div class="q-group">
+                    <label class="q-label">Current fatigue level (1 = fresh, 7 = exhausted):</label>
+                    <div class="likert-row">
+                        <span class="end-label">Fresh</span>
+                        ${[1,2,3,4,5,6,7].map(i => `
+                            <label class="likert-option">
+                                <input type="radio" name="fatigue" value="${i}" required>
+                                <span>${i}</span>
+                            </label>
+                        `).join('')}
+                        <span class="end-label">Exhausted</span>
+                    </div>
+                </div>
+
+                <div class="q-group">
+                    <label class="q-label">Task motivation (1 = low, 7 = high):</label>
+                    <div class="likert-row">
+                        <span class="end-label">Low</span>
+                        ${[1,2,3,4,5,6,7].map(i => `
+                            <label class="likert-option">
+                                <input type="radio" name="motivation" value="${i}" required>
+                                <span>${i}</span>
+                            </label>
+                        `).join('')}
+                        <span class="end-label">High</span>
+                    </div>
+                </div>
+
+                <div class="q-group">
+                    <label class="q-label">Additional feedback:</label>
+                    <textarea name="feedback" rows="2" class="q-textarea" placeholder="Any thoughts about the test..."></textarea>
+                </div>
+
+                <button type="submit" class="q-submit">Continue to Results</button>
+            </form>
+        </div>
+    `;
+
+    overlay.style.display = 'flex';
+
+    document.getElementById('q-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const fd = new FormData(this);
+        const responses = Object.fromEntries(fd.entries());
+
+        db.collection("STS_Results").doc(participantID).collection("Questionnaire").doc("Responses").set({
+            ...responses,
+            completedAt: new Date().toISOString(),
+            participantID
+        }).catch(e => console.warn("Questionnaire save failed:", e));
+
+        overlay.style.display = 'none';
+        showFinalResults();
+    });
+}
+
+
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  FINAL RESULTS                                                   ║
 // ╚══════════════════════════════════════════════════════════════════╝
 
 function showFinalResults() {
-    document.getElementById('page-webcam').style.display = 'none';
-
     const container = document.getElementById('final-results');
     container.style.display = 'block';
     document.body.classList.add('results-page');
 
-    const realTrial = allTrialResults.find(t => !t.isPractice);
-    const count = realTrial ? realTrial.standCount : 0;
+    const avgStands = Math.round(allTrialResults.reduce((a, b) => a + b.standCount, 0) / allTrialResults.length);
+    const bestStands = Math.max(...allTrialResults.map(t => t.standCount));
+    const avgRhythm = (allTrialResults.reduce((a, b) => a + b.rhythmCV, 0) / allTrialResults.length).toFixed(1);
+    const avgFatigue = (allTrialResults.reduce((a, b) => a + b.fatigueIndex, 0) / allTrialResults.length).toFixed(1);
+
+    const age = parseInt(sessionStorage.getItem('age')) || 30;
+    let normMean, normSD;
+    if (age < 35) { normMean = 33.0; normSD = 5.4; }
+    else if (age < 50) { normMean = 25; normSD = 5; }
+    else if (age < 65) { normMean = 16; normSD = 4; }
+    else if (age < 75) { normMean = 14; normSD = 3.5; }
+    else { normMean = 12; normSD = 3; }
+
+    const zScore = (bestStands - normMean) / normSD;
+    const percentile = Math.max(1, Math.min(99, Math.round(normalCDF(zScore) * 100)));
+
+    let pctLabel;
+    if (percentile >= 85) pctLabel = "well above average";
+    else if (percentile >= 70) pctLabel = "above average";
+    else if (percentile >= 30) pctLabel = "average range";
+    else if (percentile >= 15) pctLabel = "below average";
+    else pctLabel = "well below average";
+
+    function ordinal(n) {
+        if (n % 100 >= 11 && n % 100 <= 13) return n + 'th';
+        switch (n % 10) {
+            case 1: return n + 'st';
+            case 2: return n + 'nd';
+            case 3: return n + 'rd';
+            default: return n + 'th';
+        }
+    }
 
     container.innerHTML = `
         <div class="results-hero">
-            <h1>Assessment Complete</h1>
-            <p>30-Second Sit-to-Stand</p>
+            <h1>Your Results</h1>
+            <p style="color: #888; font-size: 1rem; margin-bottom: 2rem;">
+                30-Second Sit-to-Stand Assessment
+            </p>
         </div>
-        <div class="results-big-count">${count}</div>
-        <div class="results-big-label">Stands in 30 seconds</div>
-        <div>
+
+        <div class="results-stat-grid">
+            <div class="results-stat-card">
+                <div class="big-num">${bestStands}</div>
+                <div class="big-label">Best Trial (stands)</div>
+            </div>
+            <div class="results-stat-card">
+                <div class="big-num">${avgStands}</div>
+                <div class="big-label">Average (stands)</div>
+            </div>
+            <div class="results-stat-card">
+                <div class="big-num">${avgRhythm}%</div>
+                <div class="big-label">Rhythm Variability</div>
+            </div>
+            <div class="results-stat-card">
+                <div class="big-num">${avgFatigue > 0 ? '+' : ''}${avgFatigue}%</div>
+                <div class="big-label">Fatigue Index</div>
+            </div>
+        </div>
+
+        <div class="percentile-card">
+            <div class="pct-num">${ordinal(percentile)} percentile</div>
+            <div class="pct-label">
+                Your performance is ${pctLabel}
+                (${bestStands} stands vs ~${normMean} population average)
+            </div>
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+            ${allTrialResults.map((t, i) => `
+                <div style="background: #fafafa; border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <span style="font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.1em;">Trial ${i + 1}</span>
+                    </div>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; color: #1a1a1a;">${t.standCount} stands</div>
+                    <div style="font-size: 0.8rem; color: #888;">${(t.avgIntervalMs / 1000).toFixed(2)}s avg</div>
+                </div>
+            `).join('')}
+        </div>
+
+        <div style="text-align: center;">
             <button class="share-btn" onclick="shareResults()">Share Results</button>
         </div>
     `;
 
     db.collection("STS_Results").doc(participantID).collection("Summary").doc("Final").set({
         completedAt: new Date().toISOString(),
-        standCount: count,
+        totalTrials: allTrialResults.length,
+        bestStands, avgStands,
+        avgRhythmCV: parseFloat(avgRhythm),
+        avgFatigueIndex: parseFloat(avgFatigue),
+        percentile,
         allTrials: allTrialResults
     }).catch(e => console.warn("Summary save failed:", e));
 }
 
 function shareResults() {
-    const realTrial = allTrialResults.find(t => !t.isPractice);
-    const count = realTrial ? realTrial.standCount : 0;
-    const text = `I completed ${count} sit-to-stands in 30 seconds! Test yours at actioncensustanding.org`;
-    if (navigator.share) navigator.share({ title: 'Sit-to-Stand Results', text }).catch(()=>{});
-    else navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!'));
+    const best = Math.max(...allTrialResults.map(t => t.standCount));
+    const text = `I completed ${best} sit-to-stands in 30 seconds! Test your functional fitness at actioncensus.org`;
+
+    if (navigator.share) {
+        navigator.share({ title: 'Sit-to-Stand Results', text }).catch(() => {});
+    } else {
+        navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!'));
+    }
 }
 window.shareResults = shareResults;
 
+function normalCDF(z) {
+    return 0.5 * (1 + erf(z / Math.sqrt(2)));
+}
+
+function erf(x) {
+    const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741;
+    const a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+    const sign = x < 0 ? -1 : 1;
+    x = Math.abs(x);
+    const t = 1.0 / (1.0 + p * x);
+    const y = 1.0 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1) * t * Math.exp(-x*x);
+    return sign * y;
+}
+
 
 // ╔══════════════════════════════════════════════════════════════════╗
-// ║  INIT                                                            ║
+// ║  INITIALIZATION                                                  ║
 // ╚══════════════════════════════════════════════════════════════════╝
 
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('Sit-to-Stand v3 — Practice (10s) + Test (30s)');
+    console.log('DOM loaded, initializing Sit-to-Stand Assessment v2 (clinical accuracy)...');
+
+    // Enable debug panel if configured
+    if (CONFIG.DEBUG) {
+        document.getElementById('debug-panel').classList.add('visible');
+    }
+
     document.getElementById('page-webcam').style.display = 'block';
 
     await initializePoseLandmarker();
     initializeCamera();
+
     updateTrialUI();
 
     document.getElementById('begin-btn').addEventListener('click', function() {
-        document.getElementById('trial-overlay').style.display = 'none';
+        const overlay = document.getElementById('trial-overlay');
+        overlay.style.display = 'none';
+
+        // Start countdown, then calibration, then recording
         startCountdown();
     });
 });
@@ -1491,16 +2169,24 @@ document.addEventListener('DOMContentLoaded', async function() {
 function startCountdown() {
     let count = 3;
     const ct = document.getElementById('center-timer');
-    ct.style.display = 'block'; ct.textContent = count;
-    ct.style.fontSize = '14rem'; ct.style.color = 'rgba(255,255,255,0.7)';
+    ct.style.display = 'block';
+    ct.textContent = count;
+    ct.removeAttribute('data-stands');
+    ct.style.fontSize = '14rem';
+    ct.style.color = 'rgba(255,255,255,0.7)';
     ct.setAttribute('data-stands', '');
 
     const interval = setInterval(() => {
         count--;
-        if (count > 0) ct.textContent = count;
-        else {
+        if (count > 0) {
+            ct.textContent = count;
+        } else {
             clearInterval(interval);
-            ct.style.fontSize = ''; ct.style.color = ''; ct.style.display = 'none';
+            ct.style.fontSize = '';
+            ct.style.color = '';
+            ct.style.display = 'none';
+
+            // Instead of immediately recording, start calibration
             startCalibration();
         }
     }, 1000);
