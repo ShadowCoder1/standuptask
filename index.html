@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastFingers: How fast can you tap?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background-color: #ffffff;
+            background-image: 
+                linear-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-position: 0 0, 0 0;
+            color: #1a1a1a;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 1) 20%, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0) 80%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 8rem;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #1a1a1a;
+            opacity: 0;
+            animation: titleReveal 0.8s ease-out 0.2s forwards;
+            position: relative;
+            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #22c55e, transparent);
+            animation: underlineGrow 0.6s ease-out 1s forwards;
+            border-radius: 2px;
+        }
+
+        @keyframes titleReveal {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+                filter: blur(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+        }
+
+        @keyframes underlineGrow {
+            0% { width: 0; }
+            100% { width: 200px; }
+        }
+
+        /* Enhanced grid lights */
+        .grid-light {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, #888888 0%, rgba(136, 136, 136, 0.4) 70%, transparent 100%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+        }
+
+        /* Horizontal moving lights */
+        .grid-light-horizontal-1 {
+            top: 15%;
+            left: -20px;
+            animation: 
+                fadeIn 0.3s ease-out 0.3s forwards,
+                moveRightHorizontal 6s ease-in-out 0.6s infinite,
+                pulseGlow 2s ease-in-out 0.9s infinite;
+        }
+
+        .grid-light-horizontal-2 {
+            top: 35%;
+            left: -20px;
+            animation: 
+                fadeIn 0.3s ease-out 0.5s forwards,
+                moveRightHorizontal 7s ease-in-out 0.8s infinite,
+                pulseGlow 1.8s ease-in-out 1.1s infinite;
+        }
+
+        .grid-light-horizontal-3 {
+            top: 65%;
+            left: -20px;
+            animation: 
+                fadeIn 0.3s ease-out 0.7s forwards,
+                moveRightHorizontal 8s ease-in-out 1s infinite,
+                pulseGlow 2.2s ease-in-out 1.3s infinite;
+        }
+
+        .grid-light-horizontal-4 {
+            top: 85%;
+            left: -20px;
+            animation: 
+                fadeIn 0.3s ease-out 0.4s forwards,
+                moveRightHorizontal 6.5s ease-in-out 0.7s infinite,
+                pulseGlow 1.9s ease-in-out 1s infinite;
+        }
+
+        /* Vertical moving lights */
+        .grid-light-vertical-1 {
+            top: -20px;
+            left: 20%;
+            animation: 
+                fadeIn 0.3s ease-out 0.4s forwards,
+                moveDownVertical 7.5s ease-in-out 0.7s infinite,
+                pulseGlow 2.1s ease-in-out 1s infinite;
+        }
+
+        .grid-light-vertical-2 {
+            top: -20px;
+            left: 40%;
+            animation: 
+                fadeIn 0.3s ease-out 0.6s forwards,
+                moveDownVertical 8.5s ease-in-out 0.9s infinite,
+                pulseGlow 1.9s ease-in-out 1.2s infinite;
+        }
+
+        .grid-light-vertical-3 {
+            top: -20px;
+            left: 60%;
+            animation: 
+                fadeIn 0.3s ease-out 0.5s forwards,
+                moveDownVertical 7s ease-in-out 0.8s infinite,
+                pulseGlow 2s ease-in-out 1.1s infinite;
+        }
+
+        .grid-light-vertical-4 {
+            top: -20px;
+            left: 80%;
+            animation: 
+                fadeIn 0.3s ease-out 0.8s forwards,
+                moveDownVertical 9s ease-in-out 1.1s infinite,
+                pulseGlow 2.3s ease-in-out 1.4s infinite;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 0.7; }
+        }
+
+        @keyframes moveRightHorizontal {
+            0%, 10% { left: -20px; transform: scale(1); }
+            50% { transform: scale(1.5); }
+            90%, 100% { left: calc(100% + 20px); transform: scale(1); }
+        }
+
+        @keyframes moveDownVertical {
+            0%, 10% { top: -20px; transform: scale(1); }
+            50% { transform: scale(1.5); }
+            90%, 100% { top: calc(100% + 20px); transform: scale(1); }
+        }
+
+        @keyframes pulseGlow {
+            0%, 70%, 100% { 
+                background: radial-gradient(circle, #888888 0%, rgba(136, 136, 136, 0.4) 70%, transparent 100%);
+                box-shadow: 0 0 0 rgba(34, 197, 94, 0);
+            }
+            15%, 55% { 
+                background: radial-gradient(circle, #22c55e 0%, rgba(34, 197, 94, 0.6) 70%, rgba(34, 197, 94, 0.1) 100%);
+                box-shadow: 
+                    0 0 20px rgba(34, 197, 94, 0.8), 
+                    0 0 40px rgba(34, 197, 94, 0.4),
+                    0 0 60px rgba(34, 197, 94, 0.2);
+            }
+        }
+
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            background: rgba(34, 197, 94, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle-1 {
+            top: 25%;
+            left: 10%;
+            animation: float 12s ease-in-out infinite, twinkle 2s ease-in-out infinite;
+        }
+
+        .particle-2 {
+            top: 75%;
+            left: 90%;
+            animation: float 14s ease-in-out infinite reverse, twinkle 1.8s ease-in-out infinite;
+            animation-delay: 0.5s, 0.3s;
+        }
+
+        .particle-3 {
+            top: 45%;
+            left: 15%;
+            animation: float 16s ease-in-out infinite, twinkle 2.5s ease-in-out infinite;
+            animation-delay: 1s, 0.2s;
+        }
+
+        .particle-4 {
+            top: 30%;
+            left: 85%;
+            animation: float 13s ease-in-out infinite reverse, twinkle 2.2s ease-in-out infinite;
+            animation-delay: 0.3s, 0.7s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); }
+            33% { transform: translateY(-20px) translateX(10px) rotate(120deg); }
+            66% { transform: translateY(10px) translateX(-15px) rotate(240deg); }
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        p {
+            font-size: 4rem;
+            color: #4a4a4a;
+            margin-bottom: 2rem;
+            max-width: 65ch;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out 1.6s forwards;
+            line-height: 1.4;
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .highlight {
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+        
+        .challenge {
+            font-size: 5rem;
+            color: #1a1a1a;
+            margin: 3rem 0 2rem 0;
+            font-weight: 400;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out 2.2s forwards;
+            line-height: 1.3;
+        }
+        
+        .continue-btn {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+            color: white;
+            border: none;
+            padding: 2rem 4rem;
+            font-size: 3rem;
+            font-weight: 500;
+            border-radius: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 2rem;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out 1s forwards, buttonPulse 2s ease-in-out 1.8s infinite;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .continue-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .continue-btn:hover {
+            background: linear-gradient(135deg, #333333 0%, #555555 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .continue-btn:hover::before {
+            left: 100%;
+        }
+
+        .continue-btn:active {
+            transform: translateY(0);
+        }
+
+        @keyframes buttonPulse {
+            0%, 70%, 100% {
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            }
+            35% {
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), 0 0 0 10px rgba(34, 197, 94, 0.1);
+            }
+        }
+
+        /* MOBILE-ONLY STYLES - These will ONLY affect mobile devices */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+                background-size: 30px 30px; /* Smaller grid for mobile */
+            }
+
+            h1 {
+                font-size: 3.5rem; /* Much smaller for mobile screens */
+                margin-bottom: 1.5rem;
+                line-height: 1.2;
+            }
+
+            h1::after {
+                width: 120px; /* Smaller underline */
+                height: 2px;
+            }
+            
+            p {
+                font-size: 1.6rem; /* Much smaller text */
+                margin-bottom: 1.5rem;
+                line-height: 1.5;
+            }
+            
+            .challenge {
+                font-size: 2rem; /* Much smaller challenge text */
+                margin: 2rem 0 1.5rem 0;
+            }
+        
+            .continue-btn {
+                font-size: 1.4rem; /* Much smaller button text */
+                padding: 1.2rem 2.5rem; /* Smaller button padding */
+                border-radius: 1rem;
+                margin-top: 1.5rem;
+            }
+
+            /* Adjust animations for mobile */
+            .grid-light {
+                width: 4px;
+                height: 4px;
+            }
+
+            .particle {
+                width: 2px;
+                height: 2px;
+            }
+        }
+        
+        /* SMALL MOBILE STYLES - For very small screens */
+        @media (max-width: 480px) {
+            body {
+                padding: 0.5rem;
+                background-size: 25px 25px;
+            }
+
+            h1 {
+                font-size: 2.8rem; /* Even smaller for tiny screens */
+                margin-bottom: 1rem;
+            }
+            
+            h1::after {
+                width: 100px;
+            }
+        
+            p {
+                font-size: 1.3rem;
+                margin-bottom: 1rem;
+            }
+            
+            .challenge {
+                font-size: 1.7rem;
+                margin: 1.5rem 0 1rem 0;
+            }
+        
+            .continue-btn {
+                font-size: 1.2rem;
+                padding: 1rem 2rem;
+                margin-top: 1rem;
+            }
+
+            /* Further reduce decorative elements on very small screens */
+            .grid-light {
+                width: 3px;
+                height: 3px;
+            }
+
+            .particle {
+                width: 1.5px;
+                height: 1.5px;
+            }
+        }
+
+        /* EXTRA SMALL MOBILE - For very narrow screens */
+        @media (max-width: 360px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            p {
+                font-size: 1.1rem;
+            }
+            
+            .challenge {
+                font-size: 1.4rem;
+            }
+        
+            .continue-btn {
+                font-size: 1rem;
+                padding: 0.8rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Enhanced animated grid lights -->
+    <div class="grid-light grid-light-horizontal-1"></div>
+    <div class="grid-light grid-light-horizontal-2"></div>
+    <div class="grid-light grid-light-horizontal-3"></div>
+    <div class="grid-light grid-light-horizontal-4"></div>
+    
+    <div class="grid-light grid-light-vertical-1"></div>
+    <div class="grid-light grid-light-vertical-2"></div>
+    <div class="grid-light grid-light-vertical-3"></div>
+    <div class="grid-light grid-light-vertical-4"></div>
+    
+    <!-- Floating particles -->
+    <div class="particle particle-1"></div>
+    <div class="particle particle-2"></div>
+    <div class="particle particle-3"></div>
+    <div class="particle particle-4"></div>
+    
+    <div class="container">
+        <h1>FastFingers: How fast can you tap?</h1>
+        <a href="consent.html" class="continue-btn">Start Assessment</a>
+    </div>
+</body>
+</html>
