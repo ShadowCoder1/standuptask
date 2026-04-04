@@ -666,6 +666,7 @@
 
 const CONFIG = {
     TRIAL_DURATION_MS: 30000,
+    PRACTICE_TRIAL_DURATION_MS: 10000,
     TOTAL_TRIALS: 2,
     MIN_STANDS_REQUIRED: 3,
 
@@ -1641,12 +1642,15 @@ function startActualRecording() {
         }
 
         const secs = Math.ceil(remaining);
-        ct.textContent = `00:${secs.toString().padStart(2, '0')}`;
+        const totalSecs = Math.ceil((trialDuration) / 1000);
+            ct.textContent = `00:${secs.toString().padStart(2, '0')}`;
         ct.setAttribute('data-stands', standCount);
 
         document.getElementById('time-remaining').textContent = `00:${secs.toString().padStart(2, '0')}`;
 
-        if (elapsed >= CONFIG.TRIAL_DURATION_MS) {
+        const trialDuration = trialIndex === 0 ? CONFIG.PRACTICE_TRIAL_DURATION_MS : CONFIG.TRIAL_DURATION_MS;
+            if (elapsed >= trialDuration) {
+                
             stopRecording();
         }
     }, 100);
@@ -1659,9 +1663,10 @@ function startActualRecording() {
         }
     }, 1000);
 
-    stopTimeoutId = setTimeout(() => {
-        if (recording) stopRecording();
-    }, CONFIG.TRIAL_DURATION_MS + 500);
+    const trialDuration = trialIndex === 0 ? CONFIG.PRACTICE_TRIAL_DURATION_MS : CONFIG.TRIAL_DURATION_MS;
+        stopTimeoutId = setTimeout(() => {
+            if (recording) stopRecording();
+        }, trialDuration + 500);
 }
 
 function stopRecording() {
@@ -1868,12 +1873,13 @@ function updateTrialUI() {
 
     resetSignalState();
 
-    document.getElementById('trial-badge').textContent = `Trial ${num} of ${CONFIG.TOTAL_TRIALS}`;
+    document.getElementById('trial-badge').textContent = num === 1 ? `Practice Trial` : `Trial ${num - 1} of ${CONFIG.TOTAL_TRIALS - 1}`;
     document.getElementById('stand-count').textContent = '0';
-    document.getElementById('time-remaining').textContent = '00:30';
+    document.getElementById('time-remaining').textContent = num === 1 ? '00:10' : '00:30';
 
     const ct = document.getElementById('center-timer');
-    ct.textContent = '00:30';
+
+    ct.textContent = num === 1 ? '00:10' : '00:30';
     ct.setAttribute('data-stands', '0');
 
     let prevInfo = '';
@@ -1888,7 +1894,10 @@ function updateTrialUI() {
 
     const overlay = document.getElementById('trial-overlay');
     const title = document.getElementById('trial-overlay-title');
-    title.innerHTML = `${prevInfo}Trial ${num} of ${CONFIG.TOTAL_TRIALS}`;
+
+    title.innerHTML = num === 1
+        ? `${prevInfo}<div style="color:#888; font-size:1rem; font-weight:500; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:0.5rem;">Practice Round</div>Trial 1 of ${CONFIG.TOTAL_TRIALS}`
+        : `${prevInfo}Trial ${num} of ${CONFIG.TOTAL_TRIALS}`;
 
     overlay.style.display = 'flex';
     readyToStart = true;
