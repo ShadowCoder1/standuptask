@@ -884,9 +884,15 @@ function initializeCamera() {
         }
     };
 
-    navigator.mediaDevices.getUserMedia(constraints)
-        .catch(() => navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } }))
-        .then(stream => {
+if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    document.getElementById('loading-status').textContent = 'Camera not available — make sure you are on HTTPS';
+    document.getElementById('loading-overlay').querySelector('h3').textContent = 'HTTPS Required';
+    return;
+}
+
+navigator.mediaDevices.getUserMedia(constraints)
+    .catch(() => navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } }))
+    .then(stream => {
             video.srcObject = stream;
             video.setAttribute('playsinline', 'true');
             video.muted = true;
