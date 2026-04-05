@@ -1641,15 +1641,14 @@ function startActualRecording() {
             lastPoseTime = Date.now();
         }
 
-        const secs = Math.ceil(remaining);
-        const totalSecs = Math.ceil((trialDuration) / 1000);
-            ct.textContent = `00:${secs.toString().padStart(2, '0')}`;
+        const trialDuration = trialIndex === 0 ? CONFIG.PRACTICE_TRIAL_DURATION_MS : CONFIG.TRIAL_DURATION_MS;
+                const secs = Math.ceil(Math.max(0, (trialDuration - elapsed) / 1000));
+                ct.textContent = `00:${secs.toString().padStart(2, '00')}`;
         ct.setAttribute('data-stands', standCount);
 
         document.getElementById('time-remaining').textContent = `00:${secs.toString().padStart(2, '0')}`;
 
-        const trialDuration = trialIndex === 0 ? CONFIG.PRACTICE_TRIAL_DURATION_MS : CONFIG.TRIAL_DURATION_MS;
-            if (elapsed >= trialDuration) {
+        if (elapsed >= trialDuration) {
                 
             stopRecording();
         }
