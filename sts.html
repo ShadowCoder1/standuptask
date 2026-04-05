@@ -666,8 +666,7 @@
 
 const CONFIG = {
     TRIAL_DURATION_MS: 30000,
-    PRACTICE_TRIAL_DURATION_MS: 10000,
-    TOTAL_TRIALS: 2,
+    TOTAL_TRIALS: 3,
     MIN_STANDS_REQUIRED: 3,
 
     // Landmark visibility — relaxed because MediaPipe often underreports
@@ -884,15 +883,9 @@ function initializeCamera() {
         }
     };
 
-if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    document.getElementById('loading-status').textContent = 'Camera not available — make sure you are on HTTPS';
-    document.getElementById('loading-overlay').querySelector('h3').textContent = 'HTTPS Required';
-    return;
-}
-
-navigator.mediaDevices.getUserMedia(constraints)
-    .catch(() => navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } }))
-    .then(stream => {
+    navigator.mediaDevices.getUserMedia(constraints)
+        .catch(() => navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } }))
+        .then(stream => {
             video.srcObject = stream;
             video.setAttribute('playsinline', 'true');
             video.muted = true;
@@ -1647,15 +1640,13 @@ function startActualRecording() {
             lastPoseTime = Date.now();
         }
 
-        const trialDuration = trialIndex === 0 ? CONFIG.PRACTICE_TRIAL_DURATION_MS : CONFIG.TRIAL_DURATION_MS;
-                const secs = Math.ceil(Math.max(0, (trialDuration - elapsed) / 1000));
-                ct.textContent = `00:${secs.toString().padStart(2, '00')}`;
+        const secs = Math.ceil(remaining);
+        ct.textContent = `00:${secs.toString().padStart(2, '0')}`;
         ct.setAttribute('data-stands', standCount);
 
         document.getElementById('time-remaining').textContent = `00:${secs.toString().padStart(2, '0')}`;
 
-        if (elapsed >= trialDuration) {
-                
+        if (elapsed >= CONFIG.TRIAL_DURATION_MS) {
             stopRecording();
         }
     }, 100);
@@ -1668,10 +1659,9 @@ function startActualRecording() {
         }
     }, 1000);
 
-    const trialDuration = trialIndex === 0 ? CONFIG.PRACTICE_TRIAL_DURATION_MS : CONFIG.TRIAL_DURATION_MS;
-        stopTimeoutId = setTimeout(() => {
-            if (recording) stopRecording();
-        }, trialDuration + 500);
+    stopTimeoutId = setTimeout(() => {
+        if (recording) stopRecording();
+    }, CONFIG.TRIAL_DURATION_MS + 500);
 }
 
 function stopRecording() {
@@ -1878,13 +1868,12 @@ function updateTrialUI() {
 
     resetSignalState();
 
-    document.getElementById('trial-badge').textContent = num === 1 ? `Practice Trial` : `Trial ${num - 1} of ${CONFIG.TOTAL_TRIALS - 1}`;
+    document.getElementById('trial-badge').textContent = `Trial ${num} of ${CONFIG.TOTAL_TRIALS}`;
     document.getElementById('stand-count').textContent = '0';
-    document.getElementById('time-remaining').textContent = num === 1 ? '00:10' : '00:30';
+    document.getElementById('time-remaining').textContent = '00:30';
 
     const ct = document.getElementById('center-timer');
-
-    ct.textContent = num === 1 ? '00:10' : '00:30';
+    ct.textContent = '00:30';
     ct.setAttribute('data-stands', '0');
 
     let prevInfo = '';
@@ -1899,10 +1888,7 @@ function updateTrialUI() {
 
     const overlay = document.getElementById('trial-overlay');
     const title = document.getElementById('trial-overlay-title');
-
-    title.innerHTML = num === 1
-        ? `${prevInfo}<div style="color:#888; font-size:1rem; font-weight:500; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:0.5rem;">Practice Round</div>Trial 1 of ${CONFIG.TOTAL_TRIALS}`
-        : `${prevInfo}Trial ${num} of ${CONFIG.TOTAL_TRIALS}`;
+    title.innerHTML = `${prevInfo}Trial ${num} of ${CONFIG.TOTAL_TRIALS}`;
 
     overlay.style.display = 'flex';
     readyToStart = true;
@@ -2029,7 +2015,10 @@ function showFinalResults() {
     container.style.display = 'block';
     document.body.classList.add('results-page');
 
+    const avgStands = Math.round(allTrialResults.reduce((a, b) => a + b.standCount, 0) / allTrialResults.length);
     const bestStands = Math.max(...allTrialResults.map(t => t.standCount));
+    const avgRhythm = (allTrialResults.reduce((a, b) => a + b.rhythmCV, 0) / allTrialResults.length).toFixed(1);
+    const avgFatigue = (allTrialResults.reduce((a, b) => a + b.fatigueIndex, 0) / allTrialResults.length).toFixed(1);
 
     const age = parseInt(sessionStorage.getItem('age')) || 30;
     let normMean, normSD;
@@ -2041,6 +2030,13 @@ function showFinalResults() {
 
     const zScore = (bestStands - normMean) / normSD;
     const percentile = Math.max(1, Math.min(99, Math.round(normalCDF(zScore) * 100)));
+
+    let pctLabel;
+    if (percentile >= 85) pctLabel = "well above average";
+    else if (percentile >= 70) pctLabel = "above average";
+    else if (percentile >= 30) pctLabel = "average range";
+    else if (percentile >= 15) pctLabel = "below average";
+    else pctLabel = "well below average";
 
     function ordinal(n) {
         if (n % 100 >= 11 && n % 100 <= 13) return n + 'th';
@@ -2054,24 +2050,47 @@ function showFinalResults() {
 
     container.innerHTML = `
         <div class="results-hero">
-            <h1>Your Result</h1>
+            <h1>Your Results</h1>
+            <p style="color: #888; font-size: 1rem; margin-bottom: 2rem;">
+                30-Second Sit-to-Stand Assessment
+            </p>
         </div>
 
-        <div style="text-align: center; margin: 3rem 0;">
-            <div style="font-size: 8rem; font-weight: 700; color: #1a1a1a; line-height: 1;">${bestStands}</div>
-            <div style="font-size: 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: #888; margin-top: 0.75rem;">stands in 30 seconds</div>
+        <div class="results-stat-grid">
+            <div class="results-stat-card">
+                <div class="big-num">${bestStands}</div>
+                <div class="big-label">Best Trial (stands)</div>
+            </div>
+            <div class="results-stat-card">
+                <div class="big-num">${avgStands}</div>
+                <div class="big-label">Average (stands)</div>
+            </div>
+            <div class="results-stat-card">
+                <div class="big-num">${avgRhythm}%</div>
+                <div class="big-label">Rhythm Variability</div>
+            </div>
+            <div class="results-stat-card">
+                <div class="big-num">${avgFatigue > 0 ? '+' : ''}${avgFatigue}%</div>
+                <div class="big-label">Fatigue Index</div>
+            </div>
         </div>
 
         <div class="percentile-card">
             <div class="pct-num">${ordinal(percentile)} percentile</div>
-            <div class="pct-label">compared to others your age</div>
+            <div class="pct-label">
+                Your performance is ${pctLabel}
+                (${bestStands} stands vs ~${normMean} population average)
+            </div>
         </div>
 
         <div style="margin-bottom: 2rem;">
             ${allTrialResults.map((t, i) => `
                 <div style="background: #fafafa; border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.1em;">Trial ${i + 1}</span>
-                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; color: #1a1a1a;">${t.standCount} stands</span>
+                    <div>
+                        <span style="font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.1em;">Trial ${i + 1}</span>
+                    </div>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; color: #1a1a1a;">${t.standCount} stands</div>
+                    <div style="font-size: 0.8rem; color: #888;">${(t.avgIntervalMs / 1000).toFixed(2)}s avg</div>
                 </div>
             `).join('')}
         </div>
@@ -2084,12 +2103,14 @@ function showFinalResults() {
     db.collection("STS_Results").doc(participantID).collection("Summary").doc("Final").set({
         completedAt: new Date().toISOString(),
         totalTrials: allTrialResults.length,
-        bestStands,
+        bestStands, avgStands,
+        avgRhythmCV: parseFloat(avgRhythm),
+        avgFatigueIndex: parseFloat(avgFatigue),
         percentile,
         allTrials: allTrialResults
     }).catch(e => console.warn("Summary save failed:", e));
 }
-    
+
 function shareResults() {
     const best = Math.max(...allTrialResults.map(t => t.standCount));
     const text = `I completed ${best} sit-to-stands in 30 seconds! Test your functional fitness at actioncensus.org`;
