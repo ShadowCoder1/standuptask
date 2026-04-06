@@ -581,7 +581,7 @@
     function loadFallbackVideo() {
       console.warn('YouTube API failed to load, using iframe fallback');
       const playerDiv = document.getElementById('player');
-      playerDiv.innerHTML = '<iframe width="100%" height="100%" src="https://www.youtube.com/embed/BfJgb57agbk?playsinline=1&rel=0&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe>';
+      playerDiv.innerHTML = '<iframe width="100%" height="100%" src="https://www.youtube.com/embed/wLtkcPktKww?playsinline=1&rel=0&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe>';
     }
 
     function showStepsTab() {
@@ -611,7 +611,7 @@
           player = new YT.Player('player', {
             height: '100%',
             width: '100%',
-            videoId: 'BfJgb57agbk',
+            videoId: 'wLtkcPktKww',
             playerVars: { 'playsinline': 1, 'rel': 0, 'modestbranding': 1 },
             events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange }
           });
