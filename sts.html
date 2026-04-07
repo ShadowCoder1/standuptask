@@ -97,11 +97,11 @@
       z-index: 5; pointer-events: none;
     }
 
-    /* ─── HUD: Top bar ─── */
+    /* ─── HUD: Top bar (only shown during calibration) ─── */
     .hud-top {
       position: absolute; top: 0; left: 0; right: 0;
       z-index: 20;
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex; align-items: center; justify-content: flex-start;
       padding: 2rem 2.5rem;
       padding-top: calc(2rem + var(--safe-area-top));
     }
@@ -115,57 +115,41 @@
       border-radius: 100px;
       border: 1px solid rgba(255,255,255,0.1);
     }
-    .hud-stats {
-      display: flex; gap: 1rem; align-items: center;
-    }
-    .hud-stat {
-      text-align: center;
-      background: rgba(0,0,0,0.4);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 14px;
-      padding: 0.6rem 1.2rem;
-      min-width: 90px;
-    }
-    .hud-stat-value {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 2rem; font-weight: 500;
-      color: #fff; line-height: 1;
-    }
-    .hud-stat-label {
-      font-size: 0.65rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.12em;
-      color: rgba(255,255,255,0.5);
-      margin-top: 0.3rem;
-    }
+    /* hide old hud-stats — replaced by big center display */
+    .hud-stats { display: none !important; }
 
-    /* ─── Center Timer ─── */
-    .center-timer {
+    /* ─── Big Trial Display ─── */
+    .trial-display {
       position: absolute;
-      top: 42%; left: 50%;
-      transform: translate(-50%, -50%);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12rem; font-weight: 500;
-      color: rgba(255,255,255,0.85);
-      text-shadow: 0 4px 60px rgba(0,0,0,0.5);
-      z-index: 20; line-height: 1;
-      display: none;
-      letter-spacing: -0.04em;
-    }
-    .center-timer-sub {
-      position: absolute;
-      top: 58%; left: 50%;
-      transform: translateX(-50%);
-      font-size: 1.5rem; font-weight: 600;
-      color: rgba(255,255,255,0.7);
+      top: 0; left: 0; right: 0; bottom: 0;
       z-index: 20;
-      white-space: nowrap;
       display: none;
-      letter-spacing: 0.02em;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      pointer-events: none;
     }
-    @media (max-width: 768px) {
-      .center-timer { font-size: 7rem; }
-      .center-timer-sub { font-size: 1.1rem; top: 55%; }
+    .trial-display.active { display: flex; }
+    .trial-stand-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22vw; font-weight: 600;
+      color: #fff;
+      line-height: 0.9;
+      letter-spacing: -0.04em;
+      text-shadow: 0 4px 60px rgba(0,0,0,0.4);
+    }
+    .trial-timer {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8vw; font-weight: 400;
+      color: rgba(255,255,255,0.55);
+      line-height: 1;
+      letter-spacing: -0.02em;
+      margin-top: 0.5rem;
+    }
+    @media (max-width: 600px) {
+      .trial-stand-count { font-size: 38vw; }
+      .trial-timer { font-size: 14vw; }
     }
 
     /* ─── Feedback Banner (bottom) ─── */
@@ -267,51 +251,53 @@
     /* Scan text */
     .scan-instruction {
       position: absolute;
-      bottom: 10%; left: 0; right: 0;
+      top: 50%; left: 0; right: 0;
+      transform: translateY(-60%);
       text-align: center;
       z-index: 103;
+      padding: 0 2rem;
     }
     .scan-instruction-title {
-      font-size: 3.5rem; font-weight: 700;
+      font-size: clamp(5rem, 10vw, 10rem); font-weight: 700;
       color: #fff;
       text-shadow: 0 2px 40px rgba(0,0,0,0.8);
       letter-spacing: -0.02em;
       line-height: 1.1;
-      margin-bottom: 0.6rem;
+      margin-bottom: 0.8rem;
     }
     .scan-instruction-sub {
-      font-size: 1.5rem; font-weight: 400;
-      color: rgba(255,255,255,0.7);
+      font-size: clamp(2.5rem, 5vw, 5rem); font-weight: 500;
+      color: rgba(255,255,255,0.85);
       text-shadow: 0 2px 20px rgba(0,0,0,0.7);
     }
     /* Progress bar for scan */
     .scan-progress-wrap {
       position: absolute;
-      bottom: 4%; left: 50%;
+      top: calc(50% + 8rem); left: 50%;
       transform: translateX(-50%);
-      width: min(320px, 70vw);
+      width: min(600px, 85vw);
       z-index: 103;
     }
     .scan-progress-track {
-      height: 3px;
+      height: 8px;
       background: rgba(255,255,255,0.15);
-      border-radius: 2px; overflow: hidden;
+      border-radius: 4px; overflow: hidden;
     }
     .scan-progress-fill {
       height: 100%; width: 0%;
       background: #fff;
-      border-radius: 2px;
+      border-radius: 4px;
       transition: width 0.15s ease;
     }
     .scan-progress-label {
-      font-size: 0.8rem; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 0.12em;
-      color: rgba(255,255,255,0.4);
+      font-size: clamp(1.6rem, 3vw, 2.8rem); font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.7);
       text-align: center;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
     }
 
-    /* ─── STAND UP PROMPT (initial) ─── */
+    /* ─── STAND UP PROMPT ─── */
     .stand-prompt-overlay {
       display: none;
       position: absolute;
@@ -320,7 +306,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: rgba(0,0,0,0.45);
+      background: rgba(0,0,0,0.5);
       backdrop-filter: blur(2px);
     }
     .stand-prompt-overlay.active { display: flex; }
@@ -329,57 +315,57 @@
       padding: 2rem;
     }
     .stand-prompt-title {
-      font-size: 4.5rem; font-weight: 700;
+      font-size: clamp(6rem, 12vw, 11rem); font-weight: 700;
       color: #fff;
       text-shadow: 0 4px 40px rgba(0,0,0,0.8);
       letter-spacing: -0.03em;
-      line-height: 1.05;
+      line-height: 1.0;
       margin-bottom: 1rem;
     }
     .stand-prompt-sub {
-      font-size: 1.8rem; font-weight: 400;
-      color: rgba(255,255,255,0.7);
+      font-size: clamp(2.2rem, 4.5vw, 4rem); font-weight: 400;
+      color: rgba(255,255,255,0.8);
       text-shadow: 0 2px 20px rgba(0,0,0,0.7);
-      max-width: 560px;
-      line-height: 1.4;
-      margin-bottom: 2rem;
+      max-width: 900px;
+      line-height: 1.3;
+      margin-bottom: 2.5rem;
     }
     /* Body check chips */
     .body-check-row {
-      display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;
+      display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
     }
     .body-chip {
-      display: flex; align-items: center; gap: 0.45rem;
-      font-size: 1rem; font-weight: 600;
-      padding: 0.55rem 1.1rem;
+      display: flex; align-items: center; gap: 0.7rem;
+      font-size: clamp(1.5rem, 2.8vw, 2.4rem); font-weight: 600;
+      padding: 1rem 2rem;
       border-radius: 100px;
       backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 2px solid rgba(255,255,255,0.15);
       transition: all 0.3s ease;
     }
     .body-chip.ok {
       background: rgba(0,220,80,0.2);
-      border-color: rgba(0,220,80,0.5);
+      border-color: rgba(0,220,80,0.6);
       color: #00e860;
     }
     .body-chip.missing {
       background: rgba(255,255,255,0.07);
       border-color: rgba(255,255,255,0.15);
-      color: rgba(255,255,255,0.4);
+      color: rgba(255,255,255,0.45);
     }
     .body-chip-dot {
-      width: 8px; height: 8px; border-radius: 50%;
+      width: 10px; height: 10px; border-radius: 50%;
       transition: background 0.3s ease;
     }
-    .body-chip.ok .body-chip-dot { background: #00e860; box-shadow: 0 0 6px #00e860; }
+    .body-chip.ok .body-chip-dot { background: #00e860; box-shadow: 0 0 8px #00e860; }
     .body-chip.missing .body-chip-dot { background: rgba(255,255,255,0.25); }
     .stand-ready-label {
-      font-size: 1.3rem; font-weight: 600;
+      font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 600;
       color: #00e860;
-      margin-top: 1.5rem;
+      margin-top: 2rem;
       opacity: 0;
       transition: opacity 0.4s ease;
-      text-shadow: 0 0 20px rgba(0,232,96,0.5);
+      text-shadow: 0 0 24px rgba(0,232,96,0.5);
     }
     .stand-ready-label.visible { opacity: 1; }
 
@@ -392,47 +378,47 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: rgba(0,0,0,0.55);
+      background: rgba(0,0,0,0.6);
       backdrop-filter: blur(3px);
     }
     .raise-hands-overlay.active { display: flex; }
-    .raise-hands-content { text-align: center; }
+    .raise-hands-content { text-align: center; padding: 2rem; }
     .raise-hands-title {
-      font-size: 3.5rem; font-weight: 700;
+      font-size: clamp(5rem, 11vw, 10rem); font-weight: 700;
       color: #fff;
       letter-spacing: -0.02em;
-      line-height: 1.1;
-      margin-bottom: 0.6rem;
+      line-height: 1.0;
+      margin-bottom: 0.75rem;
       text-shadow: 0 4px 30px rgba(0,0,0,0.8);
     }
     .raise-hands-sub {
-      font-size: 1.5rem; font-weight: 400;
-      color: rgba(255,255,255,0.65);
-      margin-bottom: 2rem;
+      font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 400;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 2.5rem;
       text-shadow: 0 2px 16px rgba(0,0,0,0.7);
     }
     /* Circular progress ring */
     .gesture-ring-wrap {
       position: relative;
-      width: 90px; height: 90px;
+      width: 130px; height: 130px;
       margin: 0 auto;
     }
     .gesture-ring-svg {
       transform: rotate(-90deg);
-      width: 90px; height: 90px;
+      width: 130px; height: 130px;
     }
     .gesture-ring-bg {
       fill: none;
       stroke: rgba(255,255,255,0.15);
-      stroke-width: 5;
+      stroke-width: 7;
     }
     .gesture-ring-fill {
       fill: none;
       stroke: #00e860;
-      stroke-width: 5;
+      stroke-width: 7;
       stroke-linecap: round;
-      stroke-dasharray: 245;
-      stroke-dashoffset: 245;
+      stroke-dasharray: 357;
+      stroke-dashoffset: 357;
       transition: stroke-dashoffset 0.1s linear;
     }
     .gesture-ring-label {
@@ -440,15 +426,8 @@
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       font-family: 'JetBrains Mono', monospace;
-      font-size: 1.6rem; font-weight: 600;
+      font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 600;
       color: #fff;
-    }
-    @media (max-width: 600px) {
-      .stand-prompt-title { font-size: 3rem; }
-      .stand-prompt-sub { font-size: 1.3rem; }
-      .scan-instruction-title { font-size: 2.5rem; }
-      .scan-instruction-sub { font-size: 1.1rem; }
-      .hud-stat-value { font-size: 1.5rem; }
     }
 
     /* ─── Trial Overlay (error/restart) ─── */
@@ -463,27 +442,27 @@
       padding: 2rem;
       text-align: center;
     }
-    .trial-overlay-content { max-width: 680px; }
+    .trial-overlay-content { max-width: 800px; }
     .trial-overlay-title {
-      font-size: 3.5rem; font-weight: 700;
+      font-size: clamp(4rem, 9vw, 8rem); font-weight: 700;
       margin-bottom: 1.25rem; color: #fff;
       letter-spacing: -0.03em;
       line-height: 1.1;
     }
     .trial-overlay-instruction {
-      font-size: 1.6rem; color: rgba(255,255,255,0.6);
+      font-size: clamp(2rem, 4vw, 3.5rem); color: rgba(255,255,255,0.7);
       margin: 1.5rem 0; font-weight: 400; line-height: 1.5;
     }
     .trial-overlay-instruction strong { color: #fff; font-weight: 700; }
     .begin-btn {
       display: inline-block;
-      font-size: 1.2rem; font-weight: 700;
+      font-size: clamp(1.8rem, 3vw, 2.8rem); font-weight: 700;
       color: #1a1a1a; background: #fff;
-      padding: 1.1rem 3.5rem; border-radius: 100px;
+      padding: 1.4rem 5rem; border-radius: 100px;
       cursor: pointer; border: none;
       font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
       transition: all 0.2s ease;
-      margin-top: 2rem;
+      margin-top: 2.5rem;
       letter-spacing: -0.01em;
     }
     .begin-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(255,255,255,0.2); }
@@ -661,19 +640,16 @@
     <canvas id="outputCanvas"></canvas>
     <div class="video-tint"></div>
 
-    <!-- HUD Top -->
+    <!-- HUD Top (badge only, shown always) -->
     <div class="hud-top">
       <div class="hud-badge" id="trial-badge">Practice Trial</div>
-      <div class="hud-stats" id="hud-stats" style="display:none;">
-        <div class="hud-stat">
-          <div class="hud-stat-value" id="stand-count">0</div>
-          <div class="hud-stat-label">Stands</div>
-        </div>
-        <div class="hud-stat">
-          <div class="hud-stat-value" id="time-remaining">00:10</div>
-          <div class="hud-stat-label">Time Left</div>
-        </div>
-      </div>
+      <div class="hud-stats" id="hud-stats"></div>
+    </div>
+
+    <!-- Big trial display (stands + timer, shown during recording) -->
+    <div class="trial-display" id="trial-display">
+      <div class="trial-stand-count" id="stand-count">0</div>
+      <div class="trial-timer" id="time-remaining">00:10</div>
     </div>
 
     <!-- Debug Panel -->
@@ -760,9 +736,9 @@
     <!-- STEP 3a: Sit Down prompt (shown after standing scan) -->
     <div class="stand-prompt-overlay" id="sit-down-prompt">
       <div class="stand-prompt-content">
-        <div class="stand-prompt-title">Now Sit Down</div>
-        <div class="stand-prompt-sub">Sit in your chair, then raise both hands when ready</div>
-        <div class="stand-ready-label" id="sit-ready-label" style="margin-top:1.5rem;">Raise both hands when seated</div>
+        <div class="stand-prompt-title">Sit Down</div>
+        <div class="stand-prompt-sub">Take a seat in your chair</div>
+        <div class="stand-ready-label" id="sit-ready-label">Seated? Raise both hands</div>
       </div>
     </div>
 
@@ -792,13 +768,6 @@
       <div class="countdown-num" id="countdown-num">3</div>
     </div>
 
-    <!-- Center Timer (during trial) -->
-    <div class="center-timer" id="center-timer">00:10</div>
-    <div class="center-timer-sub" id="center-timer-sub">stands</div>
-
-    <!-- Feedback Banner -->
-    <div class="feedback-banner" id="feedback-banner"></div>
-
   </div>
 </div>
 
@@ -812,7 +781,7 @@ const CONFIG = {
   PRACTICE_TRIAL_DURATION_MS: 10000,
   TOTAL_TRIALS: 2,
   MIN_STANDS_REQUIRED: 2,
-  VISIBILITY_THRESHOLD: 0.25,
+  VISIBILITY_THRESHOLD: 0.55,   // raised — only accept landmarks MediaPipe is confident about
   CALIBRATION_SIT_FRAMES: 120,    // ~4s at 30fps (10 seconds feel, but 120 frames is more reliable)
   CALIBRATION_STAND_FRAMES: 40,
   CALIBRATION_THRESHOLD_MARGIN: 0.35,
@@ -1205,8 +1174,8 @@ function analyzePose(landmarks) {
       rKnee: rKneeOk ? {x:rKnee.x,y:rKnee.y,z:rKnee.z}  : null,
       lAnkle:lAnkleOk?{x:lAnkle.x,y:lAnkle.y,z:lAnkle.z}: null,
       rAnkle:rAnkleOk?{x:rAnkle.x,y:rAnkle.y,z:rAnkle.z}: null,
-      lWrist: landmarkVisible(landmarks[POSE.LEFT_WRIST])  ? {x:landmarks[POSE.LEFT_WRIST].x, y:landmarks[POSE.LEFT_WRIST].y,  z:landmarks[POSE.LEFT_WRIST].z}  : null,
-      rWrist: landmarkVisible(landmarks[POSE.RIGHT_WRIST]) ? {x:landmarks[POSE.RIGHT_WRIST].x,y:landmarks[POSE.RIGHT_WRIST].y, z:landmarks[POSE.RIGHT_WRIST].z} : null,
+      lWrist: (landmarks[POSE.LEFT_WRIST]  && landmarks[POSE.LEFT_WRIST].visibility  > 0.2) ? {x:landmarks[POSE.LEFT_WRIST].x, y:landmarks[POSE.LEFT_WRIST].y,  z:landmarks[POSE.LEFT_WRIST].z}  : null,
+      rWrist: (landmarks[POSE.RIGHT_WRIST] && landmarks[POSE.RIGHT_WRIST].visibility > 0.2) ? {x:landmarks[POSE.RIGHT_WRIST].x,y:landmarks[POSE.RIGHT_WRIST].y, z:landmarks[POSE.RIGHT_WRIST].z} : null,
     }
   };
 }
@@ -1243,13 +1212,30 @@ function setOverlayVisibility(which, visible) {
   else el.classList.remove('active');
 }
 
+// All 6 key landmarks must be individually visible for calibration frames
+function fullBodyVisible(analysis) {
+  const lm = analysis.landmarks;
+  if (!lm) return false;
+  return (
+    analysis.visibility.shoulders &&
+    analysis.visibility.hips &&
+    analysis.visibility.knees &&
+    lm.lShoulder && lm.rShoulder &&
+    lm.lHip && lm.rHip &&
+    lm.lKnee && lm.rKnee &&
+    analysis.hipY !== null &&
+    analysis.kneeAngle !== null &&
+    analysis.hipAngle !== null
+  );
+}
+
 // Called from onPoseResults when we have a valid pose
 function handleCalibrationFlow(analysis) {
 
   // ── STEP 1: Stand prompt + body chips ──
   if (flowState === FLOW.STAND_PROMPT) {
     updateBodyChips(analysis);
-    const allVisible = analysis.visibility.hips && analysis.visibility.knees && analysis.visibility.shoulders;
+    const allVisible = fullBodyVisible(analysis);
     const looksStanding = analysis.kneeAngle > 130 && allVisible;
     if (looksStanding) {
       flowState = FLOW.RAISE_HANDS;
@@ -1291,7 +1277,7 @@ function handleCalibrationFlow(analysis) {
 
   // ── STEP 2: Scan standing ──
   } else if (flowState === FLOW.SCAN_STANDING) {
-    const goodStanding = analysis.kneeAngle > 125 && analysis.visibility.hips && analysis.visibility.knees;
+    const goodStanding = analysis.kneeAngle > 125 && fullBodyVisible(analysis);
     // Don't collect if hands are still raised — wait for natural standing posture
     const armsDown = !detectHandsRaised(analysis);
     if (goodStanding && armsDown && analysis.hipY !== null) {
@@ -1307,21 +1293,27 @@ function handleCalibrationFlow(analysis) {
         setOverlayVisibility('scan_standing', false);
         setOverlayVisibility('sit_prompt', true);
         raiseHandsStartTime = null;
+        // Show the label immediately as a hint
+        const sitLabel = document.getElementById('sit-ready-label');
+        if (sitLabel) sitLabel.classList.add('visible');
       }
     } else {
-      if (calStandFrames.length > 0 && analysis.kneeAngle < 115) {
+      // Body not fully visible or not standing — reset progress
+      if (calStandFrames.length > 0) {
         calStandFrames = [];
         document.getElementById('scan-stand-progress').style.width = '0%';
+        document.getElementById('scan-stand-label').textContent = 'Stay in frame…';
       }
     }
 
   // ── STEP 3a: Sit-down prompt ──
   } else if (flowState === FLOW.SIT_PROMPT) {
-    // Detect they've sat down (knee bent or hips dropped), then show raise-hands
+    // Must clearly be seated: knees significantly bent AND hips dropped from standing baseline
     const standHipY = calStandFrames.reduce((a,b) => a+b.hipY, 0) / calStandFrames.length;
     const hipDelta = analysis.hipY - standHipY;
-    const looksSeated = (hipDelta > 0.01 || analysis.kneeAngle < 145) && analysis.visibility.hips && analysis.visibility.knees;
-    if (looksSeated) {
+    // Strict: require both a meaningful hip drop AND bent knees — avoids false trigger while still standing
+    const clearlySeated = hipDelta > 0.06 && analysis.kneeAngle < 135 && fullBodyVisible(analysis);
+    if (clearlySeated) {
       flowState = FLOW.RAISE_HANDS_SIT;
       raiseHandsStartTime = null;
       setOverlayVisibility('sit_prompt', false);
@@ -1357,7 +1349,7 @@ function handleCalibrationFlow(analysis) {
   } else if (flowState === FLOW.SCAN_SITTING) {
     // Gesture confirmed they're seated — just wait for arms down and collect
     const armsDown = !detectHandsRaised(analysis);
-    const visible = analysis.visibility.hips && analysis.visibility.knees;
+    const visible = fullBodyVisible(analysis);
     if (armsDown && visible) {
       if (sitScanStartTime === null) {
         sitScanStartTime = performance.now();
@@ -1377,21 +1369,33 @@ function handleCalibrationFlow(analysis) {
   }
 }
 
-// Returns true if both wrists are clearly above shoulder level
+// Returns true if both wrists are raised above shoulder level
 function detectHandsRaised(analysis) {
   const lm = analysis.landmarks;
   if (!lm) return false;
   const lWrist = lm.lWrist, rWrist = lm.rWrist;
   const lShoulder = lm.lShoulder, rShoulder = lm.rShoulder;
-  const shoulderY = (lShoulder && rShoulder) ? Math.min(lShoulder.y, rShoulder.y)
+
+  // Use the lower (higher Y value) shoulder as reference so threshold is easier to clear
+  const shoulderY = (lShoulder && rShoulder) ? Math.max(lShoulder.y, rShoulder.y)
                   : lShoulder ? lShoulder.y : rShoulder ? rShoulder.y : null;
   if (shoulderY === null) return false;
-  const threshold = shoulderY - 0.05;
-  return lWrist && rWrist && lWrist.y < threshold && rWrist.y < threshold;
+
+  // Wrist must be above shoulder level (lower Y = higher on screen)
+  // No extra margin — just needs to clear the shoulder line
+  const threshold = shoulderY;
+  const leftUp  = lWrist  && lWrist.y  < threshold;
+  const rightUp = rWrist  && rWrist.y  < threshold;
+
+  // Both must be raised, but if one wrist is not detected, check if the other is clearly up
+  if (lWrist && rWrist) return leftUp && rightUp;
+  if (lWrist) return leftUp;
+  if (rWrist) return rightUp;
+  return false;
 }
 
 function updateGestureRing(pct, which) {
-  const circumference = 245;
+  const circumference = 357;
   const fillId  = which === 'sit' ? 'gesture-ring-sit-fill'  : 'gesture-ring-fill';
   const labelId = which === 'sit' ? 'gesture-ring-sit-label' : 'gesture-ring-label';
   const fill  = document.getElementById(fillId);
@@ -1544,10 +1548,6 @@ function detectSitToStand(analysis, currentTimeMs) {
     if (frameState === 'standing' && (prevState === 'sitting' || prevState === 'rising')) {
       standCount++;
       updateStandCountDisplay();
-      flashFeedback('stand');
-    }
-    if (frameState === 'sitting' && (prevState === 'standing' || prevState === 'lowering')) {
-      flashFeedback('sit');
     }
   }
 
@@ -1565,22 +1565,6 @@ function updateDebugPanel(analysis, scores, fusedScore) {
   const fps = frameTimestamps.length > 2 ?
     ((frameTimestamps.length-1) / (frameTimestamps[frameTimestamps.length-1] - frameTimestamps[0])) * 1000 : 0;
   document.getElementById('dbg-fps').textContent = fps.toFixed(0);
-}
-
-function flashFeedback(type) {
-  const banner = document.getElementById('feedback-banner');
-  if (type === 'stand') {
-    banner.textContent = `Stand ${standCount} ✓`;
-    banner.style.background = 'rgba(255,255,255,0.15)';
-    banner.style.color = '#fff';
-  } else {
-    banner.textContent = 'Seated ↓';
-    banner.style.background = 'rgba(0,0,0,0.4)';
-    banner.style.color = 'rgba(255,255,255,0.7)';
-  }
-  banner.style.display = 'block';
-  clearTimeout(banner._hideTimeout);
-  banner._hideTimeout = setTimeout(() => { banner.style.display = 'none'; }, 700);
 }
 
 function updateStandCountDisplay() {
@@ -1652,6 +1636,85 @@ function drawPoseSkeleton(landmarks, canvas) {
       ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
     }
   }
+
+  ctx.restore();
+
+  // Draw hand target circles during raise-hands states
+  if (flowState === FLOW.RAISE_HANDS || flowState === FLOW.RAISE_HANDS_SIT) {
+    drawHandTargets(landmarks, canvas);
+  }
+}
+
+function drawHandTargets(landmarks, canvas) {
+  if (!landmarks) return;
+  const lShoulder = landmarks[POSE.LEFT_SHOULDER];
+  const rShoulder = landmarks[POSE.RIGHT_SHOULDER];
+  if (!landmarkVisible(lShoulder) || !landmarkVisible(rShoulder)) return;
+
+  const w = canvas.width;
+  const h = canvas.height;
+  const ctx = canvasCtx;
+  ctx.save();
+
+  // Position targets above each shoulder — mirrored so left/right feel natural to user
+  const shoulderSpan = Math.abs(rShoulder.x - lShoulder.x) * w;
+  const targetRadius = Math.max(40, shoulderSpan * 0.18);
+  const raiseAmount = (lShoulder.y * h) * 0.35; // 35% of shoulder height above shoulders
+
+  const lx = lShoulder.x * w;
+  const rx = rShoulder.x * w;
+  const ty = lShoulder.y * h - raiseAmount;
+
+  // Pulse animation based on time
+  const pulse = 0.7 + 0.3 * Math.sin(performance.now() / 300);
+
+  // Check if each wrist is near the target
+  const lWrist = landmarks[POSE.LEFT_WRIST];
+  const rWrist = landmarks[POSE.RIGHT_WRIST];
+  const lReached = lWrist && landmarkVisible(lWrist) && lWrist.y * h < lShoulder.y * h - raiseAmount * 0.6;
+  const rReached = rWrist && landmarkVisible(rWrist) && rWrist.y * h < rShoulder.y * h - raiseAmount * 0.6;
+
+  [[lx, lReached], [rx, rReached]].forEach(([cx, reached]) => {
+    const color = reached ? '0,232,96' : '255,255,255';
+    const alpha = reached ? 0.9 : 0.6 * pulse;
+
+    // Outer glow ring
+    ctx.beginPath();
+    ctx.arc(cx, ty, targetRadius * 1.35, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(${color},${alpha * 0.25})`;
+    ctx.lineWidth = targetRadius * 0.4;
+    ctx.stroke();
+
+    // Dashed circle
+    ctx.setLineDash([10, 8]);
+    ctx.beginPath();
+    ctx.arc(cx, ty, targetRadius, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(${color},${alpha})`;
+    ctx.lineWidth = reached ? 4 : 3;
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Hand icon (simple open-palm shape using arcs)
+    ctx.fillStyle = `rgba(${color},${alpha * 0.15})`;
+    ctx.beginPath();
+    ctx.arc(cx, ty, targetRadius * 0.7, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Arrow pointing up if not reached
+    if (!reached) {
+      ctx.fillStyle = `rgba(${color},${alpha * 0.9})`;
+      ctx.font = `bold ${Math.round(targetRadius * 0.9)}px system-ui`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('↑', cx, ty);
+    } else {
+      ctx.fillStyle = `rgba(${color},0.95)`;
+      ctx.font = `bold ${Math.round(targetRadius * 0.85)}px system-ui`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('✓', cx, ty);
+    }
+  });
 
   ctx.restore();
 }
@@ -1729,17 +1792,12 @@ function startActualRecording() {
   standCount = 0;
   updateStandCountDisplay();
 
-  // Show HUD
-  document.getElementById('hud-stats').style.display = 'flex';
+  // Show trial display
+  document.getElementById('trial-display').classList.add('active');
 
   const trialDuration = trialIndex === 0 ? CONFIG.PRACTICE_TRIAL_DURATION_MS : CONFIG.TRIAL_DURATION_MS;
   const initSecs = Math.ceil(trialDuration / 1000);
-
-  const ct = document.getElementById('center-timer');
-  const ctsub = document.getElementById('center-timer-sub');
-  ct.style.display = 'block';
-  ctsub.style.display = 'block';
-  ct.textContent = `00:${initSecs.toString().padStart(2, '0')}`;
+  document.getElementById('time-remaining').textContent = `00:${initSecs.toString().padStart(2, '0')}`;
 
   clearAllTimers();
 
@@ -1757,7 +1815,6 @@ function startActualRecording() {
     }
 
     const secs = Math.ceil(Math.max(0, (trialDur - elapsed) / 1000));
-    ct.textContent = `00:${secs.toString().padStart(2, '0')}`;
     document.getElementById('time-remaining').textContent = `00:${secs.toString().padStart(2, '0')}`;
 
     if (elapsed >= trialDur) stopRecording();
@@ -1778,10 +1835,7 @@ function stopRecording() {
   if (!recording) return;
   recording = false;
 
-  document.getElementById('center-timer').style.display = 'none';
-  document.getElementById('center-timer-sub').style.display = 'none';
-  document.getElementById('feedback-banner').style.display = 'none';
-  document.getElementById('hud-stats').style.display = 'none';
+  document.getElementById('trial-display').classList.remove('active');
   clearAllTimers();
 
   if (standCount < CONFIG.MIN_STANDS_REQUIRED) {
@@ -1806,10 +1860,7 @@ function restartTrial(reason) {
   recording = false;
   flowState = FLOW.IDLE;
   clearAllTimers();
-  document.getElementById('center-timer').style.display = 'none';
-  document.getElementById('center-timer-sub').style.display = 'none';
-  document.getElementById('feedback-banner').style.display = 'none';
-  document.getElementById('hud-stats').style.display = 'none';
+  document.getElementById('trial-display').classList.remove('active');
   setOverlayVisibility('stand_prompt', false);
   setOverlayVisibility('scan_standing', false);
   setOverlayVisibility('scan_sitting', false);
@@ -1922,8 +1973,6 @@ function updateTrialUI() {
   document.getElementById('trial-badge').textContent = isPractice ? 'Practice Trial' : `Trial ${num - 1} of ${CONFIG.TOTAL_TRIALS - 1}`;
   document.getElementById('stand-count').textContent = '0';
   document.getElementById('time-remaining').textContent = isPractice ? '00:10' : '00:30';
-  const ct = document.getElementById('center-timer');
-  ct.textContent = isPractice ? '00:10' : '00:30';
 }
 
 function updateLoadingProgress(pct, status) {
