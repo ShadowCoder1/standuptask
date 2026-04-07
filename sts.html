@@ -342,6 +342,106 @@
       text-shadow: 0 2px 20px rgba(0,0,0,0.7);
       max-width: 560px;
       line-height: 1.4;
+      margin-bottom: 2rem;
+    }
+    /* Body check chips */
+    .body-check-row {
+      display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;
+    }
+    .body-chip {
+      display: flex; align-items: center; gap: 0.45rem;
+      font-size: 1rem; font-weight: 600;
+      padding: 0.55rem 1.1rem;
+      border-radius: 100px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: all 0.3s ease;
+    }
+    .body-chip.ok {
+      background: rgba(0,220,80,0.2);
+      border-color: rgba(0,220,80,0.5);
+      color: #00e860;
+    }
+    .body-chip.missing {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.4);
+    }
+    .body-chip-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      transition: background 0.3s ease;
+    }
+    .body-chip.ok .body-chip-dot { background: #00e860; box-shadow: 0 0 6px #00e860; }
+    .body-chip.missing .body-chip-dot { background: rgba(255,255,255,0.25); }
+    .stand-ready-label {
+      font-size: 1.3rem; font-weight: 600;
+      color: #00e860;
+      margin-top: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      text-shadow: 0 0 20px rgba(0,232,96,0.5);
+    }
+    .stand-ready-label.visible { opacity: 1; }
+
+    /* Raise hands gesture UI */
+    .raise-hands-overlay {
+      display: none;
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 91;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(3px);
+    }
+    .raise-hands-overlay.active { display: flex; }
+    .raise-hands-content { text-align: center; }
+    .raise-hands-title {
+      font-size: 3.5rem; font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 0.6rem;
+      text-shadow: 0 4px 30px rgba(0,0,0,0.8);
+    }
+    .raise-hands-sub {
+      font-size: 1.5rem; font-weight: 400;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 2rem;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.7);
+    }
+    /* Circular progress ring */
+    .gesture-ring-wrap {
+      position: relative;
+      width: 90px; height: 90px;
+      margin: 0 auto;
+    }
+    .gesture-ring-svg {
+      transform: rotate(-90deg);
+      width: 90px; height: 90px;
+    }
+    .gesture-ring-bg {
+      fill: none;
+      stroke: rgba(255,255,255,0.15);
+      stroke-width: 5;
+    }
+    .gesture-ring-fill {
+      fill: none;
+      stroke: #00e860;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-dasharray: 245;
+      stroke-dashoffset: 245;
+      transition: stroke-dashoffset 0.1s linear;
+    }
+    .gesture-ring-label {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.6rem; font-weight: 600;
+      color: #fff;
     }
     @media (max-width: 600px) {
       .stand-prompt-title { font-size: 3rem; }
@@ -590,7 +690,49 @@
     <div class="stand-prompt-overlay" id="stand-prompt">
       <div class="stand-prompt-content">
         <div class="stand-prompt-title">Stand Up</div>
-        <div class="stand-prompt-sub">Step back so your full body is in frame, then stand still</div>
+        <div class="stand-prompt-sub">Step back until your shoulders and knees are both visible</div>
+        <div class="body-check-row">
+          <div class="body-chip missing" id="chip-shoulders">
+            <div class="body-chip-dot"></div> Shoulders
+          </div>
+          <div class="body-chip missing" id="chip-hips">
+            <div class="body-chip-dot"></div> Hips
+          </div>
+          <div class="body-chip missing" id="chip-knees">
+            <div class="body-chip-dot"></div> Knees
+          </div>
+        </div>
+        <div class="stand-ready-label" id="stand-ready-label">✓ Good — now raise both hands to begin</div>
+      </div>
+    </div>
+
+    <!-- STEP 1b: Raise Hands Gesture (before standing scan) -->
+    <div class="raise-hands-overlay" id="raise-hands-overlay">
+      <div class="raise-hands-content">
+        <div class="raise-hands-title">Raise Both Hands</div>
+        <div class="raise-hands-sub">Hold for 2 seconds to start scanning</div>
+        <div class="gesture-ring-wrap">
+          <svg class="gesture-ring-svg" viewBox="0 0 90 90">
+            <circle class="gesture-ring-bg" cx="45" cy="45" r="39"/>
+            <circle class="gesture-ring-fill" id="gesture-ring-fill" cx="45" cy="45" r="39"/>
+          </svg>
+          <div class="gesture-ring-label" id="gesture-ring-label">✓</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2b: Raise Hands Gesture (before sitting scan) -->
+    <div class="raise-hands-overlay" id="raise-hands-sit-overlay">
+      <div class="raise-hands-content">
+        <div class="raise-hands-title">Raise Both Hands</div>
+        <div class="raise-hands-sub">Hold for 2 seconds to begin sitting scan</div>
+        <div class="gesture-ring-wrap">
+          <svg class="gesture-ring-svg" viewBox="0 0 90 90">
+            <circle class="gesture-ring-bg" cx="45" cy="45" r="39"/>
+            <circle class="gesture-ring-fill" id="gesture-ring-sit-fill" cx="45" cy="45" r="39"/>
+          </svg>
+          <div class="gesture-ring-label" id="gesture-ring-sit-label">✓</div>
+        </div>
       </div>
     </div>
 
@@ -604,8 +746,8 @@
         <div class="scan-corner br"></div>
       </div>
       <div class="scan-instruction">
-        <div class="scan-instruction-title">Stand Still</div>
-        <div class="scan-instruction-sub">Scanning your standing position…</div>
+        <div class="scan-instruction-title">Lower Your Arms</div>
+        <div class="scan-instruction-sub">Stand naturally — scanning your standing position…</div>
       </div>
       <div class="scan-progress-wrap">
         <div class="scan-progress-label" id="scan-stand-label">Scanning…</div>
@@ -615,7 +757,16 @@
       </div>
     </div>
 
-    <!-- STEP 3: Sit Down + Sitting Scan Overlay -->
+    <!-- STEP 3a: Sit Down prompt (shown after standing scan) -->
+    <div class="stand-prompt-overlay" id="sit-down-prompt">
+      <div class="stand-prompt-content">
+        <div class="stand-prompt-title">Now Sit Down</div>
+        <div class="stand-prompt-sub">Sit in your chair, then raise both hands when ready</div>
+        <div class="stand-ready-label" id="sit-ready-label" style="margin-top:1.5rem;">Raise both hands when seated</div>
+      </div>
+    </div>
+
+    <!-- STEP 3b: Sitting Scan Overlay -->
     <div class="scan-overlay" id="scan-sitting">
       <div class="scan-beam scan-up"></div>
       <div class="scan-frame">
@@ -625,8 +776,8 @@
         <div class="scan-corner br"></div>
       </div>
       <div class="scan-instruction">
-        <div class="scan-instruction-title" id="sit-scan-title">Now Sit Down</div>
-        <div class="scan-instruction-sub" id="sit-scan-sub">Sit still for 10 seconds</div>
+        <div class="scan-instruction-title" id="sit-scan-title">Sit Still</div>
+        <div class="scan-instruction-sub" id="sit-scan-sub">Lower your arms and hold still for 10 seconds</div>
       </div>
       <div class="scan-progress-wrap">
         <div class="scan-progress-label" id="scan-sit-label">Sit still…</div>
@@ -731,11 +882,14 @@ let pendingState = null;
 // New calibration flow states
 const FLOW = {
   IDLE: 'idle',
-  STAND_PROMPT: 'stand_prompt',    // Step 1: Ask user to stand
-  SCAN_STANDING: 'scan_standing',  // Step 2: Scan standing
-  SCAN_SITTING: 'scan_sitting',    // Step 3: Scan sitting (10s)
-  COUNTDOWN: 'countdown',          // Countdown 3-2-1
-  RECORDING: 'recording',          // Active trial
+  STAND_PROMPT: 'stand_prompt',       // Step 1: Ask user to stand + show chips
+  RAISE_HANDS: 'raise_hands',         // Step 1b: Raise hands to confirm standing
+  SCAN_STANDING: 'scan_standing',     // Step 2: Scan standing posture
+  SIT_PROMPT: 'sit_prompt',           // Step 3a: Ask user to sit
+  RAISE_HANDS_SIT: 'raise_hands_sit', // Step 3b: Raise hands to confirm seated
+  SCAN_SITTING: 'scan_sitting',       // Step 3c: Scan sitting (10s)
+  COUNTDOWN: 'countdown',
+  RECORDING: 'recording',
 };
 let flowState = FLOW.IDLE;
 
@@ -744,6 +898,8 @@ let calSitFrames = [];
 let calData = null;
 let sitScanTimer = null;
 let sitScanStartTime = null;
+let raiseHandsStartTime = null;
+const RAISE_HANDS_DURATION_MS = 2000;
 
 let smoothedKneeAngle = null;
 let smoothedHipAngle = null;
@@ -939,39 +1095,71 @@ function calculateVelocity(posBuffer, timeBuffer) {
 function analyzePose(landmarks) {
   const lShoulder = landmarks[POSE.LEFT_SHOULDER];
   const rShoulder = landmarks[POSE.RIGHT_SHOULDER];
-  const lHip = landmarks[POSE.LEFT_HIP];
-  const rHip = landmarks[POSE.RIGHT_HIP];
+  const lHip  = landmarks[POSE.LEFT_HIP];
+  const rHip  = landmarks[POSE.RIGHT_HIP];
   const lKnee = landmarks[POSE.LEFT_KNEE];
   const rKnee = landmarks[POSE.RIGHT_KNEE];
   const lAnkle = landmarks[POSE.LEFT_ANKLE];
   const rAnkle = landmarks[POSE.RIGHT_ANKLE];
 
-  const leftLegOk = landmarkVisible(lHip) && landmarkVisible(lKnee) && landmarkVisible(lAnkle);
-  const rightLegOk = landmarkVisible(rHip) && landmarkVisible(rKnee) && landmarkVisible(rAnkle);
-  const leftHipOk = landmarkVisible(lShoulder) && landmarkVisible(lHip) && landmarkVisible(lKnee);
-  const rightHipOk = landmarkVisible(rShoulder) && landmarkVisible(rHip) && landmarkVisible(rKnee);
+  // Essentials: at least one hip + one knee visible (ankles optional)
+  const lHipOk   = landmarkVisible(lHip);
+  const rHipOk   = landmarkVisible(rHip);
+  const lKneeOk  = landmarkVisible(lKnee);
+  const rKneeOk  = landmarkVisible(rKnee);
+  const lAnkleOk = landmarkVisible(lAnkle);
+  const rAnkleOk = landmarkVisible(rAnkle);
+  const lShOk    = landmarkVisible(lShoulder);
+  const rShOk    = landmarkVisible(rShoulder);
 
-  if (!leftLegOk && !rightLegOk) return null;
-  if (!leftHipOk && !rightHipOk) return null;
+  const hasLeftLeg  = lHipOk && lKneeOk;
+  const hasRightLeg = rHipOk && rKneeOk;
+  const hasShoulders = lShOk || rShOk;
 
-  let kneeAngles = [], hipAngles = [];
-  if (leftLegOk) kneeAngles.push(angleBetweenPoints(lHip, lKnee, lAnkle));
-  if (rightLegOk) kneeAngles.push(angleBetweenPoints(rHip, rKnee, rAnkle));
-  if (leftHipOk) hipAngles.push(angleBetweenPoints(lShoulder, lHip, lKnee));
-  if (rightHipOk) hipAngles.push(angleBetweenPoints(rShoulder, rHip, rKnee));
+  // Need at least one side with hip+knee, and at least one shoulder
+  if (!hasLeftLeg && !hasRightLeg) return null;
+  if (!hasShoulders) return null;
 
-  const rawKneeAngle = kneeAngles.reduce((a,b) => a+b, 0) / kneeAngles.length;
-  const rawHipAngle  = hipAngles.reduce((a,b) => a+b, 0)  / hipAngles.length;
+  // Knee angle: prefer hip→knee→ankle, fall back to hip→knee direction only
+  let kneeAngles = [];
+  if (hasLeftLeg) {
+    if (lAnkleOk) {
+      kneeAngles.push(angleBetweenPoints(lHip, lKnee, lAnkle));
+    } else {
+      // Estimate: project knee downward by hip-knee length
+      const hipKneeLen = Math.hypot(lKnee.x - lHip.x, lKnee.y - lHip.y);
+      const fakeAnkle = { x: lKnee.x + (lKnee.x - lHip.x) * 0.6, y: lKnee.y + hipKneeLen * 0.8, z: lKnee.z };
+      kneeAngles.push(angleBetweenPoints(lHip, lKnee, fakeAnkle));
+    }
+  }
+  if (hasRightLeg) {
+    if (rAnkleOk) {
+      kneeAngles.push(angleBetweenPoints(rHip, rKnee, rAnkle));
+    } else {
+      const hipKneeLen = Math.hypot(rKnee.x - rHip.x, rKnee.y - rHip.y);
+      const fakeAnkle = { x: rKnee.x + (rKnee.x - rHip.x) * 0.6, y: rKnee.y + hipKneeLen * 0.8, z: rKnee.z };
+      kneeAngles.push(angleBetweenPoints(rHip, rKnee, fakeAnkle));
+    }
+  }
 
-  const hipLOk = landmarkVisible(lHip);
-  const hipROk = landmarkVisible(rHip);
+  // Hip angle (shoulder→hip→knee)
+  let hipAngles = [];
+  if (lShOk && lHipOk && lKneeOk) hipAngles.push(angleBetweenPoints(lShoulder, lHip, lKnee));
+  if (rShOk && rHipOk && rKneeOk) hipAngles.push(angleBetweenPoints(rShoulder, rHip, rKnee));
+
+  const rawKneeAngle = kneeAngles.length > 0 ? kneeAngles.reduce((a,b) => a+b, 0) / kneeAngles.length : null;
+  const rawHipAngle  = hipAngles.length  > 0 ? hipAngles.reduce((a,b) => a+b, 0)  / hipAngles.length  : null;
+
+  if (rawKneeAngle === null) return null;
+
+  // Hip Y (vertical position — primary STS signal)
   let rawHipY = null;
-  if (hipLOk && hipROk) rawHipY = (lHip.y + rHip.y) / 2;
-  else if (hipLOk) rawHipY = lHip.y;
-  else if (hipROk) rawHipY = rHip.y;
+  if (lHipOk && rHipOk) rawHipY = (lHip.y + rHip.y) / 2;
+  else if (lHipOk) rawHipY = lHip.y;
+  else if (rHipOk) rawHipY = rHip.y;
 
   const filteredKnee = rejectOutlier(prevRawKneeAngle, rawKneeAngle, CONFIG.OUTLIER_ANGLE_JUMP);
-  const filteredHip  = rejectOutlier(prevRawHipAngle, rawHipAngle, CONFIG.OUTLIER_ANGLE_JUMP);
+  const filteredHip  = rawHipAngle !== null ? rejectOutlier(prevRawHipAngle, rawHipAngle, CONFIG.OUTLIER_ANGLE_JUMP) : prevRawHipAngle;
   const filteredHipY = rawHipY !== null ? rejectOutlier(prevRawHipY, rawHipY, CONFIG.OUTLIER_JUMP_THRESHOLD) : null;
 
   prevRawKneeAngle = filteredKnee;
@@ -979,8 +1167,8 @@ function analyzePose(landmarks) {
   prevRawHipY      = filteredHipY;
 
   smoothedKneeAngle = emaSmooth(smoothedKneeAngle, filteredKnee, CONFIG.SMOOTHING_ALPHA);
-  smoothedHipAngle  = emaSmooth(smoothedHipAngle,  filteredHip,  CONFIG.SMOOTHING_ALPHA);
-  if (filteredHipY !== null) smoothedHipY = emaSmooth(smoothedHipY, filteredHipY, CONFIG.SMOOTHING_ALPHA);
+  if (filteredHip  !== null) smoothedHipAngle = emaSmooth(smoothedHipAngle, filteredHip, CONFIG.SMOOTHING_ALPHA);
+  if (filteredHipY !== null) smoothedHipY     = emaSmooth(smoothedHipY, filteredHipY, CONFIG.SMOOTHING_ALPHA);
 
   const now = performance.now();
   if (smoothedHipY !== null) {
@@ -993,21 +1181,32 @@ function analyzePose(landmarks) {
   }
   const hipYVelocity = calculateVelocity(hipYVelocityBuffer, hipYTimestampBuffer);
 
+  // What's visible — used by UI chips
+  const visibility = {
+    shoulders: lShOk || rShOk,
+    hips:  lHipOk || rHipOk,
+    knees: lKneeOk || rKneeOk,
+    ankles: lAnkleOk || rAnkleOk,
+  };
+
   return {
     kneeAngle: smoothedKneeAngle,
     hipAngle:  smoothedHipAngle,
     hipY:      smoothedHipY,
     hipYVelocity,
     rawKneeAngle, rawHipAngle, rawHipY,
+    visibility,
     landmarks: {
-      lShoulder: {x:lShoulder.x,y:lShoulder.y,z:lShoulder.z},
-      rShoulder: {x:rShoulder.x,y:rShoulder.y,z:rShoulder.z},
-      lHip:  {x:lHip.x, y:lHip.y, z:lHip.z},
-      rHip:  {x:rHip.x, y:rHip.y, z:rHip.z},
-      lKnee: {x:lKnee.x,y:lKnee.y,z:lKnee.z},
-      rKnee: {x:rKnee.x,y:rKnee.y,z:rKnee.z},
-      lAnkle:{x:lAnkle.x,y:lAnkle.y,z:lAnkle.z},
-      rAnkle:{x:rAnkle.x,y:rAnkle.y,z:rAnkle.z},
+      lShoulder: lShOk ? {x:lShoulder.x,y:lShoulder.y,z:lShoulder.z} : null,
+      rShoulder: rShOk ? {x:rShoulder.x,y:rShoulder.y,z:rShoulder.z} : null,
+      lHip:  lHipOk  ? {x:lHip.x, y:lHip.y, z:lHip.z}   : null,
+      rHip:  rHipOk  ? {x:rHip.x, y:rHip.y, z:rHip.z}   : null,
+      lKnee: lKneeOk ? {x:lKnee.x,y:lKnee.y,z:lKnee.z}  : null,
+      rKnee: rKneeOk ? {x:rKnee.x,y:rKnee.y,z:rKnee.z}  : null,
+      lAnkle:lAnkleOk?{x:lAnkle.x,y:lAnkle.y,z:lAnkle.z}: null,
+      rAnkle:rAnkleOk?{x:rAnkle.x,y:rAnkle.y,z:rAnkle.z}: null,
+      lWrist: landmarkVisible(landmarks[POSE.LEFT_WRIST])  ? {x:landmarks[POSE.LEFT_WRIST].x, y:landmarks[POSE.LEFT_WRIST].y,  z:landmarks[POSE.LEFT_WRIST].z}  : null,
+      rWrist: landmarkVisible(landmarks[POSE.RIGHT_WRIST]) ? {x:landmarks[POSE.RIGHT_WRIST].x,y:landmarks[POSE.RIGHT_WRIST].y, z:landmarks[POSE.RIGHT_WRIST].z} : null,
     }
   };
 }
@@ -1019,17 +1218,24 @@ function beginStandPrompt() {
   calStandFrames = [];
   calSitFrames = [];
   calData = null;
+  raiseHandsStartTime = null;
 
   setOverlayVisibility('stand_prompt', true);
+  setOverlayVisibility('raise_hands', false);
   setOverlayVisibility('scan_standing', false);
+  setOverlayVisibility('sit_prompt', false);
+  setOverlayVisibility('raise_hands_sit', false);
   setOverlayVisibility('scan_sitting', false);
 }
 
 function setOverlayVisibility(which, visible) {
   const map = {
-    stand_prompt: 'stand-prompt',
-    scan_standing: 'scan-standing',
-    scan_sitting: 'scan-sitting',
+    stand_prompt:    'stand-prompt',
+    raise_hands:     'raise-hands-overlay',
+    scan_standing:   'scan-standing',
+    sit_prompt:      'sit-down-prompt',
+    raise_hands_sit: 'raise-hands-sit-overlay',
+    scan_sitting:    'scan-sitting',
   };
   const el = document.getElementById(map[which]);
   if (!el) return;
@@ -1039,57 +1245,124 @@ function setOverlayVisibility(which, visible) {
 
 // Called from onPoseResults when we have a valid pose
 function handleCalibrationFlow(analysis) {
+
+  // ── STEP 1: Stand prompt + body chips ──
   if (flowState === FLOW.STAND_PROMPT) {
-    // Check if person looks like they're standing (kneeAngle > 150)
-    if (analysis.kneeAngle > 150) {
-      // Auto-transition to scan standing
-      flowState = FLOW.SCAN_STANDING;
+    updateBodyChips(analysis);
+    const allVisible = analysis.visibility.hips && analysis.visibility.knees && analysis.visibility.shoulders;
+    const looksStanding = analysis.kneeAngle > 130 && allVisible;
+    if (looksStanding) {
+      flowState = FLOW.RAISE_HANDS;
+      raiseHandsStartTime = null;
       setOverlayVisibility('stand_prompt', false);
-      setOverlayVisibility('scan_standing', true);
-      calStandFrames = [];
-      document.getElementById('scan-stand-progress').style.width = '0%';
-      document.getElementById('scan-stand-label').textContent = 'Scanning…';
+      setOverlayVisibility('raise_hands', true);
+      updateGestureRing(0, 'stand');
     }
+
+  // ── STEP 1b: Raise hands gesture ──
+  } else if (flowState === FLOW.RAISE_HANDS) {
+    const handsRaised = detectHandsRaised(analysis);
+    if (handsRaised) {
+      if (raiseHandsStartTime === null) raiseHandsStartTime = performance.now();
+      const elapsed = performance.now() - raiseHandsStartTime;
+      const pct = Math.min(1, elapsed / RAISE_HANDS_DURATION_MS);
+      updateGestureRing(pct, 'stand');
+      if (elapsed >= RAISE_HANDS_DURATION_MS) {
+        setOverlayVisibility('raise_hands', false);
+        setOverlayVisibility('scan_standing', true);
+        flowState = FLOW.SCAN_STANDING;
+        calStandFrames = [];
+        document.getElementById('scan-stand-progress').style.width = '0%';
+        document.getElementById('scan-stand-label').textContent = 'Lower your arms and stand still…';
+      }
+    } else {
+      if (raiseHandsStartTime !== null) {
+        raiseHandsStartTime = null;
+        updateGestureRing(0, 'stand');
+      }
+      // Fell out of frame — go back
+      const allVisible = analysis.visibility.hips && analysis.visibility.knees && analysis.visibility.shoulders;
+      if (!allVisible || analysis.kneeAngle < 115) {
+        flowState = FLOW.STAND_PROMPT;
+        setOverlayVisibility('raise_hands', false);
+        setOverlayVisibility('stand_prompt', true);
+      }
+    }
+
+  // ── STEP 2: Scan standing ──
   } else if (flowState === FLOW.SCAN_STANDING) {
-    // Collect standing frames
-    if (analysis.kneeAngle > 145 && analysis.hipY !== null) {
+    const goodStanding = analysis.kneeAngle > 125 && analysis.visibility.hips && analysis.visibility.knees;
+    // Don't collect if hands are still raised — wait for natural standing posture
+    const armsDown = !detectHandsRaised(analysis);
+    if (goodStanding && armsDown && analysis.hipY !== null) {
+      if (calStandFrames.length === 0) {
+        document.getElementById('scan-stand-label').textContent = 'Scanning…';
+      }
       calStandFrames.push({ knee: analysis.kneeAngle, hip: analysis.hipAngle, hipY: analysis.hipY });
       const pct = Math.min(100, (calStandFrames.length / CONFIG.CALIBRATION_STAND_FRAMES) * 100);
       document.getElementById('scan-stand-progress').style.width = pct + '%';
-
       if (calStandFrames.length >= CONFIG.CALIBRATION_STAND_FRAMES) {
-        // Done scanning standing — now ask them to sit
-        flowState = FLOW.SCAN_SITTING;
+        // Standing scan done — show sit-down prompt
+        flowState = FLOW.SIT_PROMPT;
         setOverlayVisibility('scan_standing', false);
-        setOverlayVisibility('scan_sitting', true);
-        document.getElementById('sit-scan-title').textContent = 'Now Sit Down';
-        document.getElementById('sit-scan-sub').textContent = 'Sit still for 10 seconds';
-        document.getElementById('scan-sit-progress').style.width = '0%';
-        document.getElementById('scan-sit-label').textContent = 'Waiting for you to sit…';
-        calSitFrames = [];
-        sitScanStartTime = null;
+        setOverlayVisibility('sit_prompt', true);
+        raiseHandsStartTime = null;
       }
     } else {
-      // They moved — reset a bit if they're not standing
-      if (calStandFrames.length > 0 && analysis.kneeAngle < 140) {
+      if (calStandFrames.length > 0 && analysis.kneeAngle < 115) {
         calStandFrames = [];
         document.getElementById('scan-stand-progress').style.width = '0%';
       }
     }
-  } else if (flowState === FLOW.SCAN_SITTING) {
-    // Wait for them to actually sit (hipY increases = hips lower on screen = sitting)
-    const standHipY = calStandFrames.reduce((a,b) => a+b.hipY, 0) / calStandFrames.length;
-    const hipDelta = analysis.hipY - standHipY; // positive = hips lower = sitting
 
-    if (hipDelta > 0.04 && analysis.kneeAngle < 150) {
-      // They're sitting — start/continue collecting
+  // ── STEP 3a: Sit-down prompt ──
+  } else if (flowState === FLOW.SIT_PROMPT) {
+    // Detect they've sat down (knee bent or hips dropped), then show raise-hands
+    const standHipY = calStandFrames.reduce((a,b) => a+b.hipY, 0) / calStandFrames.length;
+    const hipDelta = analysis.hipY - standHipY;
+    const looksSeated = (hipDelta > 0.01 || analysis.kneeAngle < 145) && analysis.visibility.hips && analysis.visibility.knees;
+    if (looksSeated) {
+      flowState = FLOW.RAISE_HANDS_SIT;
+      raiseHandsStartTime = null;
+      setOverlayVisibility('sit_prompt', false);
+      setOverlayVisibility('raise_hands_sit', true);
+      updateGestureRing(0, 'sit');
+    }
+
+  // ── STEP 3b: Raise hands (sitting) ──
+  } else if (flowState === FLOW.RAISE_HANDS_SIT) {
+    const handsRaised = detectHandsRaised(analysis);
+    if (handsRaised) {
+      if (raiseHandsStartTime === null) raiseHandsStartTime = performance.now();
+      const elapsed = performance.now() - raiseHandsStartTime;
+      const pct = Math.min(1, elapsed / RAISE_HANDS_DURATION_MS);
+      updateGestureRing(pct, 'sit');
+      if (elapsed >= RAISE_HANDS_DURATION_MS) {
+        setOverlayVisibility('raise_hands_sit', false);
+        setOverlayVisibility('scan_sitting', true);
+        flowState = FLOW.SCAN_SITTING;
+        calSitFrames = [];
+        sitScanStartTime = null;
+        document.getElementById('scan-sit-progress').style.width = '0%';
+        document.getElementById('scan-sit-label').textContent = 'Lower arms and hold still…';
+      }
+    } else {
+      if (raiseHandsStartTime !== null) {
+        raiseHandsStartTime = null;
+        updateGestureRing(0, 'sit');
+      }
+    }
+
+  // ── STEP 3c: Scan sitting ──
+  } else if (flowState === FLOW.SCAN_SITTING) {
+    // Gesture confirmed they're seated — just wait for arms down and collect
+    const armsDown = !detectHandsRaised(analysis);
+    const visible = analysis.visibility.hips && analysis.visibility.knees;
+    if (armsDown && visible) {
       if (sitScanStartTime === null) {
         sitScanStartTime = performance.now();
-        document.getElementById('sit-scan-title').textContent = 'Sit Still';
-        document.getElementById('sit-scan-sub').textContent = 'Scanning your seated position…';
-        document.getElementById('scan-sit-label').textContent = 'Hold still…';
+        document.getElementById('scan-sit-label').textContent = 'Scanning…';
       }
-
       calSitFrames.push({ knee: analysis.kneeAngle, hip: analysis.hipAngle, hipY: analysis.hipY });
       const elapsed = performance.now() - sitScanStartTime;
       const targetMs = 10000;
@@ -1097,21 +1370,63 @@ function handleCalibrationFlow(analysis) {
       const secsLeft = Math.max(0, Math.ceil((targetMs - elapsed) / 1000));
       document.getElementById('scan-sit-progress').style.width = pct + '%';
       document.getElementById('scan-sit-label').textContent = secsLeft > 0 ? `${secsLeft}s remaining…` : 'Complete!';
-
       if (elapsed >= targetMs && calSitFrames.length >= 30) {
         finishCalibration();
       }
-    } else {
-      // Not properly seated — reset
-      if (sitScanStartTime !== null) {
-        sitScanStartTime = null;
-        calSitFrames = [];
-        document.getElementById('scan-sit-progress').style.width = '0%';
-        document.getElementById('sit-scan-title').textContent = 'Now Sit Down';
-        document.getElementById('sit-scan-sub').textContent = 'Sit still for 10 seconds';
-        document.getElementById('scan-sit-label').textContent = 'Waiting for you to sit…';
-      }
     }
+  }
+}
+
+// Returns true if both wrists are clearly above shoulder level
+function detectHandsRaised(analysis) {
+  const lm = analysis.landmarks;
+  if (!lm) return false;
+  const lWrist = lm.lWrist, rWrist = lm.rWrist;
+  const lShoulder = lm.lShoulder, rShoulder = lm.rShoulder;
+  const shoulderY = (lShoulder && rShoulder) ? Math.min(lShoulder.y, rShoulder.y)
+                  : lShoulder ? lShoulder.y : rShoulder ? rShoulder.y : null;
+  if (shoulderY === null) return false;
+  const threshold = shoulderY - 0.05;
+  return lWrist && rWrist && lWrist.y < threshold && rWrist.y < threshold;
+}
+
+function updateGestureRing(pct, which) {
+  const circumference = 245;
+  const fillId  = which === 'sit' ? 'gesture-ring-sit-fill'  : 'gesture-ring-fill';
+  const labelId = which === 'sit' ? 'gesture-ring-sit-label' : 'gesture-ring-label';
+  const fill  = document.getElementById(fillId);
+  const label = document.getElementById(labelId);
+  if (!fill || !label) return;
+  fill.style.strokeDashoffset = circumference * (1 - pct);
+  if (pct >= 1) {
+    label.textContent = '✓';
+    fill.style.stroke = '#00e860';
+  } else if (pct > 0) {
+    label.textContent = Math.ceil((1 - pct) * 2) + 's';
+    fill.style.stroke = '#00e860';
+  } else {
+    label.textContent = '✓';
+    fill.style.stroke = 'rgba(255,255,255,0.25)';
+  }
+}
+
+function updateBodyChips(analysis) {
+  const v = analysis ? analysis.visibility : { shoulders: false, hips: false, knees: false };
+
+  const setChip = (id, ok) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = 'body-chip ' + (ok ? 'ok' : 'missing');
+  };
+
+  setChip('chip-shoulders', v.shoulders);
+  setChip('chip-hips', v.hips);
+  setChip('chip-knees', v.knees);
+
+  const allOk = v.shoulders && v.hips && v.knees;
+  const readyLabel = document.getElementById('stand-ready-label');
+  if (readyLabel) {
+    readyLabel.classList.toggle('visible', allOk);
   }
 }
 
@@ -1355,10 +1670,14 @@ function onPoseResults(result, canvas) {
     poseDetected = true;
     lastPoseTime = Date.now();
     const analysis = analyzePose(landmarks);
-    if (!analysis) return;
+    if (!analysis) {
+      // Partial pose (missing hips/knees) — still update chips
+      if (flowState === FLOW.STAND_PROMPT) updateBodyChips(null);
+      return;
+    }
 
     // Calibration flow
-    if (flowState === FLOW.STAND_PROMPT || flowState === FLOW.SCAN_STANDING || flowState === FLOW.SCAN_SITTING) {
+    if ([FLOW.STAND_PROMPT, FLOW.RAISE_HANDS, FLOW.SCAN_STANDING, FLOW.SIT_PROMPT, FLOW.RAISE_HANDS_SIT, FLOW.SCAN_SITTING].includes(flowState)) {
       handleCalibrationFlow(analysis);
     }
 
@@ -1383,6 +1702,7 @@ function onPoseResults(result, canvas) {
     }
   } else {
     poseDetected = false;
+    if (flowState === FLOW.STAND_PROMPT) updateBodyChips(null);
   }
 }
 
@@ -1515,7 +1835,7 @@ function resetSignalState() {
   hipYVelocityBuffer = []; hipYTimestampBuffer = [];
   calStandFrames = []; calSitFrames = []; calData = null;
   currentState = 'unknown'; pendingState = null; consecutiveStateFrames = 0;
-  sitScanStartTime = null;
+  sitScanStartTime = null; raiseHandsStartTime = null;
 }
 
 function clearAllTimers() {
