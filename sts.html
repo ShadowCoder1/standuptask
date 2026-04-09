@@ -2330,8 +2330,8 @@ function showQuestionnaire() {
           </div>
         </div>
         <div class="q-group">
-          <label class="q-label">Your voice shapes this research</label>
-          <textarea name="feedback" rows="3" class="q-textarea" placeholder="What was it like? Was anything confusing, broken, or surprisingly smooth? We read every response — your honest take helps us build something that actually works for real people."></textarea>
+          <label class="q-label">Your voice shapes this research <span style="color:#e74c3c">*</span></label>
+          <textarea name="feedback" rows="3" class="q-textarea" required minlength="10" placeholder="What was it like? Was anything confusing, broken, or surprisingly smooth? We read every response — your honest take helps us build something that actually works for real people."></textarea>
         </div>
         <button type="submit" class="q-submit">Continue to Results</button>
       </form>
@@ -2341,6 +2341,13 @@ function showQuestionnaire() {
 
   document.getElementById('q-form').addEventListener('submit', function(e) {
     e.preventDefault();
+    const feedback = this.querySelector('textarea[name="feedback"]').value.trim();
+    if (feedback.length < 10) {
+      this.querySelector('textarea[name="feedback"]').style.borderColor = '#e74c3c';
+      this.querySelector('textarea[name="feedback"]').focus();
+      return;
+    }
+    this.querySelector('textarea[name="feedback"]').style.borderColor = '';
     const responses = Object.fromEntries(new FormData(this).entries());
     db.collection("participants").doc(participantID)
       .collection("questionnaire").doc("responses").set({
