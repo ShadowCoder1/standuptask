@@ -940,12 +940,14 @@ let stopTimeoutId = null;
 
 const POSE = {
   NOSE: 0,
+  LEFT_EYE: 2,       RIGHT_EYE: 5,
+  LEFT_EAR: 7,       RIGHT_EAR: 8,
   LEFT_SHOULDER: 11, RIGHT_SHOULDER: 12,
-  LEFT_HIP: 23, RIGHT_HIP: 24,
-  LEFT_KNEE: 25, RIGHT_KNEE: 26,
-  LEFT_ANKLE: 27, RIGHT_ANKLE: 28,
-  LEFT_HEEL: 29, RIGHT_HEEL: 30,
-  LEFT_WRIST: 15, RIGHT_WRIST: 16,
+  LEFT_HIP: 23,      RIGHT_HIP: 24,
+  LEFT_KNEE: 25,     RIGHT_KNEE: 26,
+  LEFT_ANKLE: 27,    RIGHT_ANKLE: 28,
+  LEFT_HEEL: 29,     RIGHT_HEEL: 30,
+  LEFT_WRIST: 15,    RIGHT_WRIST: 16,
 };
 
 // ── MediaPipe Init ──
@@ -1230,6 +1232,12 @@ function analyzePose(landmarks) {
       rAnkle:rAnkleOk?{x:rAnkle.x,y:rAnkle.y,z:rAnkle.z}: null,
       lWrist: (landmarks[POSE.LEFT_WRIST]  && landmarks[POSE.LEFT_WRIST].visibility  > 0.2) ? {x:landmarks[POSE.LEFT_WRIST].x, y:landmarks[POSE.LEFT_WRIST].y,  z:landmarks[POSE.LEFT_WRIST].z}  : null,
       rWrist: (landmarks[POSE.RIGHT_WRIST] && landmarks[POSE.RIGHT_WRIST].visibility > 0.2) ? {x:landmarks[POSE.RIGHT_WRIST].x,y:landmarks[POSE.RIGHT_WRIST].y, z:landmarks[POSE.RIGHT_WRIST].z} : null,
+      // Head landmarks
+      nose:  (landmarks[POSE.NOSE]      && landmarks[POSE.NOSE].visibility      > 0.2) ? {x:landmarks[POSE.NOSE].x,      y:landmarks[POSE.NOSE].y,      z:landmarks[POSE.NOSE].z}      : null,
+      lEye:  (landmarks[POSE.LEFT_EYE]  && landmarks[POSE.LEFT_EYE].visibility  > 0.2) ? {x:landmarks[POSE.LEFT_EYE].x,  y:landmarks[POSE.LEFT_EYE].y,  z:landmarks[POSE.LEFT_EYE].z}  : null,
+      rEye:  (landmarks[POSE.RIGHT_EYE] && landmarks[POSE.RIGHT_EYE].visibility > 0.2) ? {x:landmarks[POSE.RIGHT_EYE].x, y:landmarks[POSE.RIGHT_EYE].y, z:landmarks[POSE.RIGHT_EYE].z} : null,
+      lEar:  (landmarks[POSE.LEFT_EAR]  && landmarks[POSE.LEFT_EAR].visibility  > 0.2) ? {x:landmarks[POSE.LEFT_EAR].x,  y:landmarks[POSE.LEFT_EAR].y,  z:landmarks[POSE.LEFT_EAR].z}  : null,
+      rEar:  (landmarks[POSE.RIGHT_EAR] && landmarks[POSE.RIGHT_EAR].visibility > 0.2) ? {x:landmarks[POSE.RIGHT_EAR].x, y:landmarks[POSE.RIGHT_EAR].y, z:landmarks[POSE.RIGHT_EAR].z} : null,
     }
   };
 }
@@ -1770,6 +1778,14 @@ function drawPoseSkeleton(landmarks, canvas) {
   const h = canvas.height;
 
   const connections = [
+    // Head
+    [POSE.LEFT_EAR,  POSE.LEFT_EYE],
+    [POSE.RIGHT_EAR, POSE.RIGHT_EYE],
+    [POSE.LEFT_EYE,  POSE.NOSE],
+    [POSE.RIGHT_EYE, POSE.NOSE],
+    [POSE.LEFT_EAR,  POSE.LEFT_SHOULDER],
+    [POSE.RIGHT_EAR, POSE.RIGHT_SHOULDER],
+    // Body
     [POSE.LEFT_SHOULDER, POSE.RIGHT_SHOULDER],
     [POSE.LEFT_SHOULDER, POSE.LEFT_HIP],
     [POSE.RIGHT_SHOULDER, POSE.RIGHT_HIP],
@@ -1807,7 +1823,12 @@ function drawPoseSkeleton(landmarks, canvas) {
     }
   }
 
-  const keyJoints = [POSE.LEFT_SHOULDER, POSE.RIGHT_SHOULDER, POSE.LEFT_HIP, POSE.RIGHT_HIP, POSE.LEFT_KNEE, POSE.RIGHT_KNEE, POSE.LEFT_ANKLE, POSE.RIGHT_ANKLE];
+  const keyJoints = [
+    POSE.LEFT_SHOULDER, POSE.RIGHT_SHOULDER,
+    POSE.LEFT_HIP, POSE.RIGHT_HIP,
+    POSE.LEFT_KNEE, POSE.RIGHT_KNEE,
+    POSE.LEFT_ANKLE, POSE.RIGHT_ANKLE,
+  ];
   for (const idx of keyJoints) {
     if (idx < lm.length && landmarkVisible(lm[idx])) {
       const x = lm[idx].x * w;
@@ -1817,6 +1838,20 @@ function drawPoseSkeleton(landmarks, canvas) {
       ctx.beginPath(); ctx.arc(x, y, 10, 0, Math.PI * 2); ctx.fill();
       ctx.globalAlpha = 1;
       ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
+  // Head landmarks — smaller dots, slightly dimmer
+  const headJoints = [POSE.NOSE, POSE.LEFT_EYE, POSE.RIGHT_EYE, POSE.LEFT_EAR, POSE.RIGHT_EAR];
+  for (const idx of headJoints) {
+    if (idx < lm.length && landmarkVisible(lm[idx])) {
+      const x = lm[idx].x * w;
+      const y = lm[idx].y * h;
+      const r = idx === POSE.NOSE ? 5 : 3;
+      ctx.fillStyle = dotColor;
+      ctx.globalAlpha = 0.6;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
     }
   }
 
@@ -2200,6 +2235,12 @@ function saveTrialData(result) {
             rAn: pack(f.lm?.rAnkle),
             lWr: pack(f.lm?.lWrist),
             rWr: pack(f.lm?.rWrist),
+            // Head
+            ns:  pack(f.lm?.nose),
+            lEy: pack(f.lm?.lEye),
+            rEy: pack(f.lm?.rEye),
+            lEr: pack(f.lm?.lEar),
+            rEr: pack(f.lm?.rEar),
           }
         }))
       }).catch(e => console.warn(`Batch ${batchIdx} save failed:`, e));
