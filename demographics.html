@@ -449,13 +449,13 @@
 
   <script>
   const firebaseConfig = {
-      apiKey: "AIzaSyCIijYBeCcyl8Mt414nueAgIId8PfWaW5M",
-      authDomain: "pdstudy-99397.firebaseapp.com",
-      projectId: "pdstudy-99397",
-      storageBucket: "pdstudy-99397.firebasestorage.app",
-      messagingSenderId: "235927780090",
-      appId: "1:235927780090:web:348a8c85c130371686a743",
-      measurementId: "G-Y116J49LYT"
+      apiKey: "AIzaSyCngFl00Lif212z8wi75hBI6ZRjJj0mhFI",
+      authDomain: "standing-and-sitting.firebaseapp.com",
+      projectId: "standing-and-sitting",
+      storageBucket: "standing-and-sitting.firebasestorage.app",
+      messagingSenderId: "205817616372",
+      appId: "1:205817616372:web:d9fb5e38409ff673788ba1",
+      measurementId: "G-SBSSFPLM7E"
   };
 
   firebase.initializeApp(firebaseConfig);
@@ -642,29 +642,24 @@
       const originalText = button.textContent;
       button.textContent = 'Saving...';
     
-      // Save to Firestore: Subjects collection
+      // Save to Firestore: participants collection (aligned with assessment data model)
       const subjectData = {
-        id: pid,
-        age: age,
-        sex: sex,
-        handedness: handedness,
-        device: device,
-        education: education,
-        sleep: sleep,
-        ethnicity: ethnicity,
-        race: race,
-        returner: null,
-        distractions: [],
-        distraction: null,
-        comments: null,
-        currTrial: 0,
-        dpin: null,
-        tgt_file: null,
-        target_visibility: "present",
-        timestamp: new Date().toISOString()
+        participantID: pid,
+        createdAt: new Date().toISOString(),
+        demographics: {
+          age,
+          gender: sex,
+          handedness,
+          device,
+          education:  education  || null,
+          sleep:      sleep      || null,
+          ethnicity:  ethnicity  || null,
+          race:       race       || null,
+          vision:     document.getElementById('vision').value || null,
+        }
       };
-    
-      db.collection("Subjects").doc(pid).set(subjectData)
+
+      db.collection("participants").doc(pid).set(subjectData, { merge: true })
         .then(() => {
           // Store in sessionStorage for other pages
           sessionStorage.setItem('prolificID', pid);
