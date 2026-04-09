@@ -705,7 +705,7 @@
     <div class="stand-prompt-overlay" id="stand-prompt">
       <div class="stand-prompt-content">
         <div class="stand-prompt-title">Stand Up</div>
-        <div class="stand-prompt-sub">Step back until your shoulders and knees are both visible</div>
+        <div class="stand-prompt-sub" id="position-guidance">Step back until your full body is visible</div>
         <div class="body-check-row">
           <div class="body-chip missing" id="chip-shoulders">
             <div class="body-chip-dot"></div> Shoulders
@@ -792,7 +792,7 @@
       </div>
       <div class="scan-instruction">
         <div class="scan-instruction-title" id="sit-scan-title">Sit Still</div>
-        <div class="scan-instruction-sub" id="sit-scan-sub">Lower your arms and hold still for 10 seconds</div>
+        <div class="scan-instruction-sub" id="sit-scan-sub">Uncross your arms and let them hang to the side</div>
       </div>
       <div class="scan-progress-wrap">
         <div class="scan-progress-label" id="scan-sit-label">Sit still…</div>
@@ -1313,7 +1313,7 @@ function handleCalibrationFlow(analysis) {
         flowState = FLOW.SCAN_STANDING;
         calStandFrames = [];
         document.getElementById('scan-stand-progress').style.width = '0%';
-        document.getElementById('scan-stand-label').textContent = 'Lower your arms and stand still…';
+        document.getElementById('scan-stand-label').textContent = 'Uncross your arms, let them hang to the side, and stand still…';
       }
     } else {
       if (raiseHandsStartTime !== null) {
@@ -1390,7 +1390,7 @@ function handleCalibrationFlow(analysis) {
         calSitFrames = [];
         sitScanStartTime = null;
         document.getElementById('scan-sit-progress').style.width = '0%';
-        document.getElementById('scan-sit-label').textContent = 'Lower arms and hold still…';
+        document.getElementById('scan-sit-label').textContent = 'Uncross your arms and let them hang to the side…';
       }
     } else {
       if (raiseHandsStartTime !== null) {
@@ -1488,9 +1488,97 @@ function updateBodyChips(analysis) {
 
   const allOk = v.shoulders && v.hips && v.knees;
   const readyLabel = document.getElementById('stand-ready-label');
-  if (readyLabel) {
-    readyLabel.classList.toggle('visible', allOk);
+  if (readyLabel) readyLabel.classList.toggle('visible', allOk);
+
+  // ── Directional guidance ──
+  const guidance = document.getElementById('position-guidance');
+  if (!guidance) return;
+
+  if (!analysis) {
+    guidance.textContent = 'No body detected — step in front of the camera';
+    guidance.style.color = 'rgba(255,100,100,0.9)';
+    return;
   }
+
+  const lm = analysis.landmarks;
+
+  if (allOk) {
+    // Check centering — are they too far left or right?
+    const lSh = lm?.lShoulder, rSh = lm?.rShoulder;
+    if (lSh && rSh) {
+      const midX = (lSh.x + rSh.x) / 2; // 0=left edge, 1=right edge (mirrored so left=their right)
+      if (midX < 0.3) {
+        guidance.textContent = 'Move a little to your left to center yourself';
+        guidance.style.color = 'rgba(245,166,35,0.9)';
+        return;
+      }
+      if (midX > 0.7) {
+        guidance.textContent = 'Move a little to your right to center yourself';
+        guidance.style.color = 'rgba(245,166,35,0.9)';
+        return;
+      }
+    }
+    guidance.textContent = 'Perfect position — hold still';
+    guidance.style.color = 'rgba(0,232,96,0.9)';
+    return;
+  }
+
+  // Not all visible — figure out what's missing and why
+  const hasShoulders = v.shoulders;
+  const hasHips      = v.hips;
+  const hasKnees     = v.knees;
+
+  // If nothing detected at all
+  if (!hasShoulders && !hasHips && !hasKnees) {
+    guidance.textContent = 'Step in front of the camera and move back until your full body is visible';
+    guidance.style.color = 'rgba(255,100,100,0.9)';
+    return;
+  }
+
+  // Shoulders visible but knees not → too close, need to back up
+  if (hasShoulders && !hasKnees) {
+    guidance.textContent = 'Move further back — your knees need to be in frame';
+    guidance.style.color = 'rgba(245,166,35,0.9)';
+    return;
+  }
+
+  // Knees visible but shoulders not → camera too low or person too close at top
+  if (!hasShoulders && hasKnees) {
+    guidance.textContent = 'Move further back — your shoulders need to be in frame';
+    guidance.style.color = 'rgba(245,166,35,0.9)';
+    return;
+  }
+
+  // Hips missing but shoulders + knees visible → unusual, camera angle issue
+  if (hasShoulders && hasKnees && !hasHips) {
+    guidance.textContent = 'Face the camera more directly — your hips are not visible';
+    guidance.style.color = 'rgba(245,166,35,0.9)';
+    return;
+  }
+
+  // Shoulders missing only
+  if (!hasShoulders) {
+    guidance.textContent = 'Move further back so your shoulders are visible';
+    guidance.style.color = 'rgba(245,166,35,0.9)';
+    return;
+  }
+
+  // Knees missing only
+  if (!hasKnees) {
+    // Use hip Y position to guess if they need to go back or camera needs tilting
+    const hipY = analysis.hipY;
+    if (hipY !== null && hipY < 0.4) {
+      // Hips are in top half of frame — person is likely too close
+      guidance.textContent = 'Move further back — your knees need to be visible';
+    } else {
+      guidance.textContent = 'Point the camera down slightly, or move further back';
+    }
+    guidance.style.color = 'rgba(245,166,35,0.9)';
+    return;
+  }
+
+  guidance.textContent = 'Adjust position until all three are green';
+  guidance.style.color = 'rgba(255,255,255,0.7)';
 }
 
 function finishCalibration() {
