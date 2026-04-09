@@ -842,12 +842,13 @@ const CONFIG = {
 
 // Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyCIijYBeCcyl8Mt414nueAgIId8PfWaW5M",
-  authDomain: "pdstudy-99397.firebaseapp.com",
-  projectId: "pdstudy-99397",
-  storageBucket: "pdstudy-99399.firebasestorage.app",
-  messagingSenderId: "235927780090",
-  appId: "1:235927780090:web:348a8c85c130371686a743",
+  apiKey: "AIzaSyCngFl00Lif212z8wi75hBI6ZRjJj0mhFI",
+  authDomain: "standing-and-sitting.firebaseapp.com",
+  projectId: "standing-and-sitting",
+  storageBucket: "standing-and-sitting.firebasestorage.app",
+  messagingSenderId: "205817616372",
+  appId: "1:205817616372:web:d9fb5e38409ff673788ba1",
+  measurementId: "G-SBSSFPLM7E"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -858,14 +859,25 @@ if (!participantID) {
   sessionStorage.setItem('prolificID', participantID);
 }
 
-db.collection("STS_Participants").doc(participantID).collection("DeviceInfo").doc("device").set({
-  userAgent: navigator.userAgent, platform: navigator.platform,
-  screenWidth: screen.width, screenHeight: screen.height,
-  windowWidth: innerWidth, windowHeight: innerHeight,
-  devicePixelRatio: devicePixelRatio,
-  touchPoints: navigator.maxTouchPoints || 0,
-  timestamp: new Date().toISOString()
-}).catch(e => console.warn("Device info save failed:", e));
+// ── Firestore helpers ──
+const participantRef = () => db.collection("participants").doc(participantID);
+const trialRef = (n) => participantRef().collection("trials").doc(`trial_${n}`);
+
+// Save participant profile on load
+db.collection("participants").doc(participantID).set({
+  participantID,
+  createdAt: new Date().toISOString(),
+  device: {
+    userAgent: navigator.userAgent,
+    platform: navigator.platform,
+    screenWidth: screen.width,
+    screenHeight: screen.height,
+    windowWidth: innerWidth,
+    windowHeight: innerHeight,
+    devicePixelRatio: devicePixelRatio,
+    touchPoints: navigator.maxTouchPoints || 0,
+  }
+}, { merge: true }).catch(e => console.warn("Profile save failed:", e));
 
 // State
 let poseLandmarker = null;
@@ -2026,26 +2038,83 @@ function calculateTrialResult() {
 }
 
 function saveTrialData(result) {
-  const trialDoc = `trial_${result.trialNumber}`;
-  db.collection("STS_Results").doc(participantID).collection("Trials").doc(trialDoc).set(result)
-    .then(() => console.log(`Trial ${result.trialNumber} saved`))
-    .catch(e => console.warn("Trial save failed:", e));
+  const tRef = trialRef(result.trialNumber);
 
-  const BATCH_SIZE = 50;
-  for (let i = 0; i < frameData.length; i += BATCH_SIZE) {
-    const batch = frameData.slice(i, i + BATCH_SIZE);
-    const batchIdx = Math.floor(i / BATCH_SIZE);
-    db.collection("STS_PoseLandmarks").doc(`${participantID}_trial${result.trialNumber}_batch${batchIdx}`).set({
-      participantID, trialNumber: result.trialNumber, batchIndex: batchIdx,
-      frameCount: batch.length, timestamp: new Date().toISOString(),
-      timestamps:    batch.map(f => f.t),
-      kneeAngles:    batch.map(f => f.kneeAngle),
-      hipAngles:     batch.map(f => f.hipAngle),
-      smoothedKnees: batch.map(f => f.smoothedKnee),
-      smoothedHips:  batch.map(f => f.smoothedHip),
-      hipY:          batch.map(f => f.hipY),
-      hipYVelocity:  batch.map(f => f.hipYVelocity),
-    }).catch(e => console.warn("Batch save failed:", e));
+  // 1. Trial summary
+  tRef.set({
+    trialNumber:    result.trialNumber,
+    isPractice:     result.trialNumber === 1,
+    standCount:     result.standCount,
+    durationSec:    result.duration,
+    avgIntervalMs:  result.avgIntervalMs,
+    rhythmCV:       result.rhythmCV,
+    fatigueIndex:   result.fatigueIndex,
+    avgFPS:         result.avgFPS,
+    framesRecorded: result.framesRecorded,
+    calibration:    result.calibration || null,
+    completedAt:    new Date().toISOString(),
+  }).catch(e => console.warn("Trial summary save failed:", e));
+
+  // 2. Stand/sit events (full detail for analysis)
+  tRef.collection("events").doc("all").set({
+    events: standEvents.map(e => ({
+      timeMs:     e.time,
+      type:       e.type,
+      fromState:  e.fromState,
+      kneeAngle:  Math.round(e.kneeAngle * 10) / 10,
+      hipAngle:   Math.round(e.hipAngle  * 10) / 10,
+      hipY:       Math.round(e.hipY      * 1000) / 1000,
+      fusedScore: Math.round(e.fusedScore * 1000) / 1000,
+      velocity:   Math.round(e.velocity  * 1000) / 1000,
+    }))
+  }).catch(e => console.warn("Events save failed:", e));
+
+  // 3. Pose landmarks — batched in 100 frames
+  // Store x,y,z for each key landmark per frame for full playback reconstruction
+  const BATCH = 100;
+  for (let i = 0; i < frameData.length; i += BATCH) {
+    const slice = frameData.slice(i, i + BATCH);
+    const batchIdx = Math.floor(i / BATCH);
+
+    // Pack landmarks as compact arrays [x,y,z] rounded to 4dp
+    const pack = (lm) => lm ? [
+      Math.round(lm.x * 10000) / 10000,
+      Math.round(lm.y * 10000) / 10000,
+      Math.round(lm.z * 10000) / 10000,
+    ] : null;
+
+    db.collection("poseLandmarks")
+      .doc(`${participantID}_t${result.trialNumber}_b${batchIdx}`)
+      .set({
+        participantID,
+        trialNumber: result.trialNumber,
+        batchIndex:  batchIdx,
+        frameCount:  slice.length,
+        startTimeMs: slice[0].t,
+        endTimeMs:   slice[slice.length - 1].t,
+        savedAt:     new Date().toISOString(),
+        frames: slice.map(f => ({
+          t:  f.t,
+          // Computed angles (for quick analysis without re-deriving)
+          kA: Math.round((f.smoothedKnee || 0) * 10) / 10,
+          hA: Math.round((f.smoothedHip  || 0) * 10) / 10,
+          hY: Math.round((f.hipY         || 0) * 10000) / 10000,
+          hV: Math.round((f.hipYVelocity || 0) * 10000) / 10000,
+          // Raw landmark coords for skeleton reconstruction
+          lm: {
+            lSh: pack(f.lm?.lShoulder),
+            rSh: pack(f.lm?.rShoulder),
+            lHp: pack(f.lm?.lHip),
+            rHp: pack(f.lm?.rHip),
+            lKn: pack(f.lm?.lKnee),
+            rKn: pack(f.lm?.rKnee),
+            lAn: pack(f.lm?.lAnkle),
+            rAn: pack(f.lm?.rAnkle),
+            lWr: pack(f.lm?.lWrist),
+            rWr: pack(f.lm?.rWrist),
+          }
+        }))
+      }).catch(e => console.warn(`Batch ${batchIdx} save failed:`, e));
   }
 }
 
@@ -2144,9 +2213,12 @@ function showQuestionnaire() {
   document.getElementById('q-form').addEventListener('submit', function(e) {
     e.preventDefault();
     const responses = Object.fromEntries(new FormData(this).entries());
-    db.collection("STS_Results").doc(participantID).collection("Questionnaire").doc("Responses").set({
-      ...responses, completedAt: new Date().toISOString(), participantID
-    }).catch(e => console.warn("Questionnaire save failed:", e));
+    db.collection("participants").doc(participantID)
+      .collection("questionnaire").doc("responses").set({
+        ...responses,
+        completedAt: new Date().toISOString(),
+        participantID,
+      }).catch(e => console.warn("Questionnaire save failed:", e));
     overlay.style.display = 'none';
     showFinalResults();
   });
@@ -2197,12 +2269,18 @@ function showFinalResults() {
     </div>
   `;
 
-  db.collection("STS_Results").doc(participantID).collection("Summary").doc("Final").set({
-    completedAt: new Date().toISOString(),
-    totalTrials: allTrialResults.length,
-    bestStands, percentile,
-    allTrials: allTrialResults
-  }).catch(e => console.warn("Summary save failed:", e));
+  db.collection("participants").doc(participantID).set({
+    completedAt:  new Date().toISOString(),
+    totalTrials:  allTrialResults.length,
+    bestStands,
+    percentile,
+    allTrials:    allTrialResults.map(t => ({
+      trialNumber: t.trialNumber,
+      standCount:  t.standCount,
+      duration:    t.duration,
+      isPractice:  t.trialNumber === 1,
+    })),
+  }, { merge: true }).catch(e => console.warn("Summary save failed:", e));
 }
 
 function shareResults() {
