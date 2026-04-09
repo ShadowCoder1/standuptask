@@ -642,7 +642,7 @@
       const originalText = button.textContent;
       button.textContent = 'Saving...';
     
-      // Save to Firestore: participants collection (aligned with assessment data model)
+      // Save to Firestore: participants collection
       const subjectData = {
         participantID: pid,
         createdAt: new Date().toISOString(),
@@ -707,15 +707,17 @@
       // Show/hide device other field based on device selection
       const deviceSelect = document.getElementById('device');
       const deviceOtherGroup = document.getElementById('deviceOtherGroup');
-      
-      deviceSelect.addEventListener('change', function() {
-        if (this.value === 'other') {
-          deviceOtherGroup.style.display = 'flex';
-        } else {
-          deviceOtherGroup.style.display = 'none';
-          document.getElementById('deviceOther').value = ''; // Clear the field when hidden
-        }
-      });
+      if (deviceSelect && deviceOtherGroup) {
+        deviceSelect.addEventListener('change', function() {
+          if (this.value === 'other') {
+            deviceOtherGroup.style.display = 'flex';
+          } else {
+            deviceOtherGroup.style.display = 'none';
+            const deviceOther = document.getElementById('deviceOther');
+            if (deviceOther) deviceOther.value = '';
+          }
+        });
+      }
     });
   </script>
     
