@@ -657,25 +657,6 @@
   </p>
 </div>
 
-<!-- Device Check Overlay -->
-<div id="device-check-overlay" style="
-  display:none; position:fixed; top:0; left:0; right:0; bottom:0;
-  background:#0a0a0a; z-index:99998;
-  align-items:center; justify-content:center; flex-direction:column;
-  gap:1.5rem; padding:2rem; text-align:center;">
-  
-  <h2 style="font-size:1.4rem; font-weight:700; color:#fff; max-width:320px; line-height:1.4;">
-    Please open this on your smartphone
-  </h2>
-  <p style="color:rgba(255,255,255,0.55); font-size:0.95rem; max-width:300px; line-height:1.6;">
-    This assessment requires a smartphone camera for accurate results. Laptop and desktop webcams produce unreliable measurements.
-  </p>
-  <p style="color:rgba(255,255,255,0.35); font-size:0.85rem; max-width:300px; line-height:1.5;">
-    Scan this page's URL on your phone, or copy the link and open it in your phone's browser.
-  </p>
-  <div style="background:#1a1a1a; border:1px solid #333; border-radius:12px; padding:1rem 1.5rem; font-family:monospace; font-size:0.85rem; color:#00e860; word-break:break-all; max-width:320px;">
-    actioncensustanding.org
-  </div>
 </div>
 
 <!-- Trial Error/Restart Overlay -->
@@ -845,19 +826,6 @@
 <div id="final-results" class="final-results"></div>
 
 <script type="module">
-
-// ── Device Check ─────────────────────────────────────────────────
-// Desktop webcams produce systematically lower stand counts (d=1.20, p=0.002)
-function isMobileDevice() {
-  const ua = navigator.userAgent;
-  return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)
-    || (navigator.maxTouchPoints > 1 && /Mac/.test(ua));
-}
-if (!isMobileDevice()) {
-  document.getElementById('device-check-overlay').style.display = 'flex';
-  document.getElementById('loading-overlay').style.display = 'none';
-}
-// ─────────────────────────────────────────────────────────────────
 
 const CONFIG = {
   TRIAL_DURATION_MS: 30000,
