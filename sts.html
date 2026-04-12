@@ -926,6 +926,7 @@ const FLOW = {
 let flowState = FLOW.IDLE;
 
 let calStandFrames = [];
+let calStandStartTime = null;   // wall-clock start of standing scan (FPS-independent gate)
 let calSitFrames = [];
 let calData = null;
 let sitScanTimer = null;
@@ -1353,12 +1354,18 @@ function handleCalibrationFlow(analysis) {
     const armsDown = !detectArmsCrossed(analysis);
     if (goodStanding && armsDown && analysis.hipY !== null) {
       if (calStandFrames.length === 0) {
+        calStandStartTime = performance.now();
         document.getElementById('scan-stand-label').textContent = 'Scanning…';
       }
       calStandFrames.push({ knee: analysis.kneeAngle, hip: analysis.hipAngle, hipY: analysis.hipY });
-      const pct = Math.min(100, (calStandFrames.length / CONFIG.CALIBRATION_STAND_FRAMES) * 100);
+      const elapsedMs = performance.now() - calStandStartTime;
+      // Require both minimum frames AND minimum time (1500ms) — prevents iPhone 60fps rushing through
+      const pct = Math.min(100, Math.min(
+        calStandFrames.length / CONFIG.CALIBRATION_STAND_FRAMES,
+        elapsedMs / 1500
+      ) * 100);
       document.getElementById('scan-stand-progress').style.width = pct + '%';
-      if (calStandFrames.length >= CONFIG.CALIBRATION_STAND_FRAMES) {
+      if (calStandFrames.length >= CONFIG.CALIBRATION_STAND_FRAMES && elapsedMs >= 1500) {
         // Standing scan done — show sit-down prompt
         flowState = FLOW.SIT_PROMPT;
         setOverlayVisibility('scan_standing', false);
@@ -1372,6 +1379,7 @@ function handleCalibrationFlow(analysis) {
       // Body not fully visible or not standing — reset progress
       if (calStandFrames.length > 0) {
         calStandFrames = [];
+        calStandStartTime = null;
         document.getElementById('scan-stand-progress').style.width = '0%';
         document.getElementById('scan-stand-label').textContent = 'Stay in frame…';
       }
@@ -1394,6 +1402,20 @@ function handleCalibrationFlow(analysis) {
 
   // ── STEP 3b: Raise hands (sitting) ──
   } else if (flowState === FLOW.RAISE_HANDS_SIT) {
+    const chairChecked = document.getElementById('chair-confirm-check') &&
+                         document.getElementById('chair-confirm-check').checked;
+    if (!chairChecked) {
+      // Block gesture detection until chair is confirmed
+      const hint = document.getElementById('raise-hands-sit-label') ||
+                   document.querySelector('#raise-hands-sit-overlay p, #raise-hands-sit-overlay .subtitle');
+      if (hint && !hint.dataset.chairWarning) {
+        hint.dataset.chairWarning = '1';
+        hint.textContent = 'Please confirm your chair type above before continuing';
+      }
+      raiseHandsStartTime = null;
+      updateGestureRing(0, 'sit');
+      return;
+    }
     const handsRaised = detectArmsCrossed(analysis);
     if (handsRaised) {
       if (raiseHandsStartTime === null) raiseHandsStartTime = performance.now();
@@ -1599,15 +1621,32 @@ function updateBodyChips(analysis) {
 }
 
 function finishCalibration() {
-  flowState = FLOW.COUNTDOWN;
-  setOverlayVisibility('scan_sitting', false);
-
   const sitKnee  = calSitFrames.reduce((a,b) => a+b.knee, 0) / calSitFrames.length;
   const sitHip   = calSitFrames.reduce((a,b) => a+b.hip, 0)  / calSitFrames.length;
   const sitHipY  = calSitFrames.reduce((a,b) => a+b.hipY, 0) / calSitFrames.length;
   const standKnee = calStandFrames.reduce((a,b) => a+b.knee, 0) / calStandFrames.length;
   const standHip  = calStandFrames.reduce((a,b) => a+b.hip, 0)  / calStandFrames.length;
   const standHipY = calStandFrames.reduce((a,b) => a+b.hipY, 0) / calStandFrames.length;
+
+  const hipYRange = Math.abs(standHipY - sitHipY);
+  const kneeRange = Math.abs(standKnee - sitKnee);
+
+  // Quality gate: if the calibration didn't capture a meaningful sit/stand difference,
+  // the thresholds will be unreliable — send the participant back to redo it.
+  if (hipYRange < 0.05 || kneeRange < 10) {
+    calStandFrames = []; calStandStartTime = null;
+    calSitFrames = [];
+    flowState = FLOW.STAND_PROMPT;
+    setOverlayVisibility('scan_sitting', false);
+    setOverlayVisibility('stand_prompt', true);
+    const label = document.getElementById('scan-stand-label');
+    if (label) label.textContent = 'Calibration unclear — please stand and sit more distinctly';
+    if (CONFIG.DEBUG) console.warn('[Calibration] Quality gate failed — hipYRange:', hipYRange.toFixed(4), 'kneeRange:', kneeRange.toFixed(1));
+    return;
+  }
+
+  flowState = FLOW.COUNTDOWN;
+  setOverlayVisibility('scan_sitting', false);
 
   const margin = CONFIG.CALIBRATION_THRESHOLD_MARGIN;
   calData = {
@@ -1618,9 +1657,9 @@ function finishCalibration() {
       hipAngle:  sitHip  + (standHip  - sitHip)  * margin,
       hipY:      sitHipY + (standHipY - sitHipY) * margin,
     },
-    kneeRange: Math.abs(standKnee - sitKnee),
+    kneeRange,
     hipRange:  Math.abs(standHip  - sitHip),
-    hipYRange: Math.abs(standHipY - sitHipY),
+    hipYRange,
   };
 
   currentState = 'sitting';
@@ -2174,7 +2213,7 @@ function resetSignalState() {
   smoothedKneeAngle = null; smoothedHipAngle = null; smoothedHipY = null;
   prevRawKneeAngle = null; prevRawHipAngle = null; prevRawHipY = null;
   hipYVelocityBuffer = []; hipYTimestampBuffer = [];
-  calStandFrames = []; calSitFrames = []; calData = null;
+  calStandFrames = []; calStandStartTime = null; calSitFrames = []; calData = null;
   _adaptiveHipYStanding = []; _adaptiveHipYSitting = [];
   _adaptiveKneeStanding = []; _adaptiveKneeSitting = [];
   _adaptiveUpdated = false;
