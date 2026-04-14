@@ -786,7 +786,7 @@
           <input type="checkbox" id="chair-confirm-check" style="width:18px;height:18px;accent-color:#00e860;cursor:pointer;">
           I'm sitting in an upright chair with feet flat on the floor
         </label>
-        <div class="stand-ready-label" id="sit-ready-label" style="opacity:0.3;pointer-events:none;">Seated? Cross your arms</div>
+        <div class="stand-ready-label" id="sit-ready-label" style="opacity:0.6;pointer-events:none;">Check the box above, then sit down</div>
       </div>
     </div>
 
@@ -1390,9 +1390,27 @@ function handleCalibrationFlow(analysis) {
     // Must clearly be seated: knees significantly bent AND hips dropped from standing baseline
     const standHipY = calStandFrames.reduce((a,b) => a+b.hipY, 0) / calStandFrames.length;
     const hipDelta = analysis.hipY - standHipY;
-    // Strict: require both a meaningful hip drop AND bent knees — avoids false trigger while still standing
+    const chairChecked = document.getElementById('chair-confirm-check')?.checked;
+    // Require chair checkbox checked AND clearly seated before advancing
     const clearlySeated = hipDelta > 0.06 && analysis.kneeAngle < 135 && fullBodyVisible(analysis);
-    if (clearlySeated) {
+    // Update sit-ready-label to guide user through both steps
+    const readyLabel = document.getElementById('sit-ready-label');
+    if (readyLabel) {
+      if (!chairChecked && clearlySeated) {
+        readyLabel.textContent = '✓ Seated — check the box above to continue';
+        readyLabel.style.opacity = '1';
+      } else if (!chairChecked) {
+        readyLabel.textContent = 'Check the box above, then sit down';
+        readyLabel.style.opacity = '0.6';
+      } else if (!clearlySeated) {
+        readyLabel.textContent = 'Now sit down in the chair';
+        readyLabel.style.opacity = '0.6';
+      } else {
+        readyLabel.textContent = '✓ Good — cross your arms to confirm';
+        readyLabel.style.opacity = '1';
+      }
+    }
+    if (clearlySeated && chairChecked) {
       flowState = FLOW.RAISE_HANDS_SIT;
       raiseHandsStartTime = null;
       setOverlayVisibility('sit_prompt', false);
@@ -1402,20 +1420,6 @@ function handleCalibrationFlow(analysis) {
 
   // ── STEP 3b: Raise hands (sitting) ──
   } else if (flowState === FLOW.RAISE_HANDS_SIT) {
-    const chairChecked = document.getElementById('chair-confirm-check') &&
-                         document.getElementById('chair-confirm-check').checked;
-    if (!chairChecked) {
-      // Block gesture detection until chair is confirmed
-      const hint = document.getElementById('raise-hands-sit-label') ||
-                   document.querySelector('#raise-hands-sit-overlay p, #raise-hands-sit-overlay .subtitle');
-      if (hint && !hint.dataset.chairWarning) {
-        hint.dataset.chairWarning = '1';
-        hint.textContent = 'Please confirm your chair type above before continuing';
-      }
-      raiseHandsStartTime = null;
-      updateGestureRing(0, 'sit');
-      return;
-    }
     const handsRaised = detectArmsCrossed(analysis);
     if (handsRaised) {
       if (raiseHandsStartTime === null) raiseHandsStartTime = performance.now();
