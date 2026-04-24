@@ -822,15 +822,30 @@
   </div>
 </div>
 
+<!-- Rest Screen -->
+<div id="rest-screen" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a0a;z-index:9998;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;">
+  <div style="color:rgba(255,255,255,0.4);font-size:clamp(0.85rem,1.5vw,1rem);font-weight:600;text-transform:uppercase;letter-spacing:0.18em;margin-bottom:2.5rem;" id="rest-label">REST</div>
+  <div style="font-size:clamp(1.6rem,3vw,2.4rem);font-weight:300;color:rgba(255,255,255,0.9);letter-spacing:-0.02em;margin-bottom:3rem;line-height:1.4;" id="rest-next-label">Next: Trial 1 of 2</div>
+  <div style="font-size:clamp(9rem,22vw,18rem);font-weight:200;color:#ffffff;line-height:1;letter-spacing:-0.04em;font-variant-numeric:tabular-nums;" id="rest-countdown">30</div>
+  <div style="margin-top:3rem;width:min(420px,80vw);">
+    <div style="height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;">
+      <div id="rest-progress-bar" style="height:100%;background:rgba(255,255,255,0.5);border-radius:2px;width:100%;transition:width 1s linear;"></div>
+    </div>
+  </div>
+  <div style="margin-top:2.5rem;font-size:clamp(1rem,2vw,1.3rem);color:rgba(255,255,255,0.35);font-weight:400;">Relax. The next trial starts automatically.</div>
+</div>
+
 <!-- Results Page -->
 <div id="final-results" class="final-results"></div>
 
 <script type="module">
 
 const CONFIG = {
-  TRIAL_DURATION_MS: 30000,
+  TRIAL_DURATION_MS: 15000,
   PRACTICE_TRIAL_DURATION_MS: 10000,
-  TOTAL_TRIALS: 2,
+  TOTAL_TRIALS: 3,
+  REST_AFTER_PRACTICE_MS: 30000,
+  REST_AFTER_TRIAL1_MS: 60000,
   MIN_STANDS_REQUIRED: 2,
   VISIBILITY_THRESHOLD: 0.55,   // raised — only accept landmarks MediaPipe is confident about
   CALIBRATION_SIT_FRAMES: 120,    // ~4s at 30fps (10 seconds feel, but 120 frames is more reliable)
@@ -2182,11 +2197,53 @@ function stopRecording() {
   trialIndex++;
 
   if (trialIndex < CONFIG.TOTAL_TRIALS) {
-    resetSignalState();
-    beginStandPrompt();
+    // trialIndex was just incremented:
+    // trialIndex===1 → just finished practice → 30s rest
+    // trialIndex===2 → just finished scored trial 1 → 60s rest
+    const restMs = trialIndex === 1 ? CONFIG.REST_AFTER_PRACTICE_MS : CONFIG.REST_AFTER_TRIAL1_MS;
+    const nextLabel = trialIndex === 1 ? 'Trial 1 of 2' : 'Trial 2 of 2';
+    showRestScreen(restMs, nextLabel, () => {
+      resetSignalState();
+      beginStandPrompt();
+    });
   } else {
     showQuestionnaire();
   }
+}
+
+function showRestScreen(durationMs, nextLabel, callback) {
+  document.getElementById('page-webcam').style.display = 'none';
+  const screen = document.getElementById('rest-screen');
+  const countdownEl = document.getElementById('rest-countdown');
+  const progressBar = document.getElementById('rest-progress-bar');
+  const nextLabelEl = document.getElementById('rest-next-label');
+
+  nextLabelEl.textContent = `Next: ${nextLabel}`;
+  screen.style.display = 'flex';
+
+  let remaining = Math.round(durationMs / 1000);
+  countdownEl.textContent = remaining;
+  progressBar.style.transition = 'none';
+  progressBar.style.width = '100%';
+
+  // Trigger CSS transition on next frame
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      progressBar.style.transition = `width ${durationMs}ms linear`;
+      progressBar.style.width = '0%';
+    });
+  });
+
+  const tick = setInterval(() => {
+    remaining--;
+    countdownEl.textContent = remaining;
+    if (remaining <= 0) {
+      clearInterval(tick);
+      screen.style.display = 'none';
+      document.getElementById('page-webcam').style.display = 'block';
+      callback();
+    }
+  }, 1000);
 }
 
 function restartTrial(reason) {
@@ -2411,9 +2468,9 @@ function saveTrialData(result) {
 function updateTrialUI() {
   const num = trialIndex + 1;
   const isPractice = num === 1;
-  document.getElementById('trial-badge').textContent = isPractice ? 'Practice Trial' : `Trial ${num - 1} of ${CONFIG.TOTAL_TRIALS - 1}`;
+  document.getElementById('trial-badge').textContent = isPractice ? 'Practice Trial' : `Trial ${num - 1} of 2`;
   document.getElementById('stand-count').textContent = '0';
-  document.getElementById('time-remaining').textContent = isPractice ? '00:10' : '00:30';
+  document.getElementById('time-remaining').textContent = isPractice ? '00:10' : '00:15';
 }
 
 function updateLoadingProgress(pct, status) {
@@ -2526,7 +2583,9 @@ function showFinalResults() {
   container.style.display = 'block';
   document.body.classList.add('results-page');
 
-  const scoredResult = allTrialResults.find((_, i) => i === 1) || allTrialResults[allTrialResults.length - 1];
+  const scoredResults = allTrialResults.filter((_, i) => i > 0);
+  const scoredResult = scoredResults.reduce((best, t) => (!best || t.standCount > best.standCount) ? t : best, null)
+                    || allTrialResults[allTrialResults.length - 1];
   const bestStands = scoredResult ? scoredResult.standCount : Math.max(...allTrialResults.map(t => t.standCount));
 
   const age = parseInt(sessionStorage.getItem('age')) || 30;
@@ -2547,7 +2606,7 @@ function showFinalResults() {
 
     <div style="text-align:center;margin:3rem 0;">
       <div style="font-size:8rem;font-weight:700;color:#1a1a1a;line-height:1;">${bestStands}</div>
-      <div style="font-size:1.1rem;font-weight:600;text-transform:uppercase;letter-spacing:0.12em;color:#888;margin-top:0.75rem;">stands in 30 seconds</div>
+      <div style="font-size:1.1rem;font-weight:600;text-transform:uppercase;letter-spacing:0.12em;color:#888;margin-top:0.75rem;">stands in 15 seconds</div>
     </div>
 
     <div style="margin-bottom:2rem;">
@@ -2581,7 +2640,7 @@ function showFinalResults() {
 function shareResults() {
   const scoredResult = allTrialResults.find((_, i) => i === 1) || allTrialResults[allTrialResults.length - 1];
   const best = scoredResult ? scoredResult.standCount : 0;
-  const text = `I completed ${best} sit-to-stands in 30 seconds! Test your functional fitness at actioncensustanding.org`;
+  const text = `I completed ${best} sit-to-stands in 15 seconds! Test your functional fitness at actioncensustanding.org`;
   if (navigator.share) {
     navigator.share({ title: 'Sit-to-Stand Results', text }).catch(() => {});
   } else {
@@ -2617,6 +2676,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   });
 });
 
-</script>
+</script>                                               
 </body>
 </html>
