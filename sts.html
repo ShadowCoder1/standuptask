@@ -693,7 +693,7 @@
     <!-- Big trial display (stands + timer, shown during recording) -->
     <div class="trial-display" id="trial-display">
       <div class="trial-stand-count" id="stand-count">0</div>
-      <div class="trial-timer" id="time-remaining">00:10</div>
+      <div class="trial-timer" id="time-remaining">00:30</div>
     </div>
 
     <!-- Debug Panel -->
@@ -840,12 +840,15 @@
 
 <script type="module">
 
+// Prolific completion code — replace with the code from your Prolific study dashboard
+const PROLIFIC_COMPLETION_CODE = "C14RBLNF";
+
 const CONFIG = {
-  TRIAL_DURATION_MS: 15000,
-  PRACTICE_TRIAL_DURATION_MS: 10000,
+  TRIAL_DURATION_MS: 30000,
+  PRACTICE_TRIAL_DURATION_MS: 30000,
   TOTAL_TRIALS: 3,
   REST_AFTER_PRACTICE_MS: 30000,
-  REST_AFTER_TRIAL1_MS: 60000,
+  REST_AFTER_TRIAL1_MS: 90000,
   MIN_STANDS_REQUIRED: 2,
   VISIBILITY_THRESHOLD: 0.55,   // raised — only accept landmarks MediaPipe is confident about
   CALIBRATION_SIT_FRAMES: 120,    // ~4s at 30fps (10 seconds feel, but 120 frames is more reliable)
@@ -962,6 +965,7 @@ let frameTimestamps = [];
 let mainTimerInterval = null;
 let inactivityInterval = null;
 let stopTimeoutId = null;
+let trialStartMs = null;   // absolute wall-clock ms when countdown ends and timer begins
 
 const POSE = {
   NOSE: 0,
@@ -2123,6 +2127,7 @@ function startActualRecording() {
   flowState = FLOW.RECORDING;
   recording = true;
   startTime = Date.now();
+  trialStartMs = Date.now();   // wall-clock timestamp for Firestore audit trail
   lastPoseTime = Date.now();
 
   standEvents = [];
@@ -2366,6 +2371,8 @@ function calculateTrialResult() {
     avgFPS: Math.round(avgFPS * 10) / 10,
     framesRecorded: frameData.length,
     lowConfidencePct,
+    startTimeMs: trialStartMs,     // absolute wall-clock ms when countdown ended
+    endTimeMs: Date.now(),         // absolute wall-clock ms when timer hit zero
     calibration: calData ? {
       sitKnee: calData.sitKnee, sitHip: calData.sitHip, sitHipY: calData.sitHipY,
       standKnee: calData.standKnee, standHip: calData.standHip, standHipY: calData.standHipY,
@@ -2390,6 +2397,8 @@ function saveTrialData(result) {
     avgFPS:            result.avgFPS,
     framesRecorded:    result.framesRecorded,
     lowConfidencePct:  result.lowConfidencePct,
+    startTimeMs:    result.startTimeMs,   // wall-clock ms when countdown ended → trial began
+    endTimeMs:      result.endTimeMs,     // wall-clock ms when trial timer hit zero
     calibration:    result.calibration || null,
     completedAt:    new Date().toISOString(),
   }).catch(e => console.warn("Trial summary save failed:", e));
@@ -2470,7 +2479,7 @@ function updateTrialUI() {
   const isPractice = num === 1;
   document.getElementById('trial-badge').textContent = isPractice ? 'Practice Trial' : `Trial ${num - 1} of 2`;
   document.getElementById('stand-count').textContent = '0';
-  document.getElementById('time-remaining').textContent = isPractice ? '00:10' : '00:15';
+  document.getElementById('time-remaining').textContent = '00:30';
 }
 
 function updateLoadingProgress(pct, status) {
@@ -2599,20 +2608,31 @@ function showFinalResults() {
   const zScore = (bestStands - normMean) / normSD;
   const percentile = Math.max(1, Math.min(99, Math.round(normalCDF(zScore) * 100)));
 
+  const prolificURL = `https://app.prolific.com/submissions/complete?cc=${PROLIFIC_COMPLETION_CODE}`;
+
   container.innerHTML = `
+    <div style="background:#f0fdf4;border:2px solid #16a34a;border-radius:16px;padding:2rem;margin-bottom:2.5rem;text-align:center;">
+      <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#15803d;margin-bottom:0.75rem;">Prolific Completion Code</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:2.5rem;font-weight:700;letter-spacing:0.15em;color:#16a34a;margin-bottom:0.75rem;">${PROLIFIC_COMPLETION_CODE}</div>
+      <div style="font-size:0.9rem;color:#166534;margin-bottom:1.5rem;line-height:1.5;">Copy this code and paste it into Prolific to receive your payment — or click below.</div>
+      <a href="${prolificURL}" style="display:inline-block;background:#16a34a;color:#fff;font-size:1rem;font-weight:700;padding:0.9rem 2.5rem;border-radius:100px;text-decoration:none;letter-spacing:-0.01em;" onmouseover="this.style.background='#15803d'" onmouseout="this.style.background='#16a34a'">
+        Submit on Prolific →
+      </a>
+    </div>
+
     <div class="results-hero">
       <h1>Your Result</h1>
     </div>
 
     <div style="text-align:center;margin:3rem 0;">
       <div style="font-size:8rem;font-weight:700;color:#1a1a1a;line-height:1;">${bestStands}</div>
-      <div style="font-size:1.1rem;font-weight:600;text-transform:uppercase;letter-spacing:0.12em;color:#888;margin-top:0.75rem;">stands in 15 seconds</div>
+      <div style="font-size:1.1rem;font-weight:600;text-transform:uppercase;letter-spacing:0.12em;color:#888;margin-top:0.75rem;">stands in 30 seconds</div>
     </div>
 
     <div style="margin-bottom:2rem;">
       ${allTrialResults.map((t, i) => `
-        <div style="background:#fafafa;border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:1rem 1.25rem;margin-bottom:0.75rem;display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.1em;">${i === 0 ? 'Practice' : `Trial ${i}`}</span>
+        <div style="background:#fafafa;border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:1rem 1.25rem;margin-bottom:0.75rem;display:flex;justify-content:space-between;align-items:center;${i === 0 ? 'opacity:0.55;' : ''}">
+          <span style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.1em;">${i === 0 ? 'Practice (not scored)' : `Scored Trial ${i}`}</span>
           <span style="font-family:'JetBrains Mono',monospace;font-size:1.3rem;color:#1a1a1a;">${t.standCount} stands</span>
         </div>
       `).join('')}
@@ -2640,7 +2660,7 @@ function showFinalResults() {
 function shareResults() {
   const scoredResult = allTrialResults.find((_, i) => i === 1) || allTrialResults[allTrialResults.length - 1];
   const best = scoredResult ? scoredResult.standCount : 0;
-  const text = `I completed ${best} sit-to-stands in 15 seconds! Test your functional fitness at actioncensustanding.org`;
+  const text = `I completed ${best} sit-to-stands in 30 seconds! Test your functional fitness at actioncensustanding.org`;
   if (navigator.share) {
     navigator.share({ title: 'Sit-to-Stand Results', text }).catch(() => {});
   } else {
@@ -2676,6 +2696,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   });
 });
 
-</script>                                               
+</script>
 </body>
 </html>
