@@ -537,21 +537,31 @@
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: #fff;
       z-index: 9999;
-      align-items: center; justify-content: center;
-      padding: 1rem;
+      align-items: flex-start; justify-content: center;
+      padding: 1.5rem 1rem;
       overflow-y: auto;
     }
     .questionnaire-card {
       max-width: 700px; width: 100%;
-      max-height: 90vh; overflow-y: auto;
       background: #fff;
       border: 1px solid rgba(0,0,0,0.08);
       border-radius: 20px;
       padding: 2.5rem;
       box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+      margin: auto;
     }
     .q-title { font-size: 2rem; font-weight: 300; margin-bottom: 0.4rem; color: #1a1a1a; }
     .q-subtitle { font-size: 1rem; color: #888; margin-bottom: 2rem; }
+    .q-page { display: block; }
+    .q-page.hidden { display: none; }
+    .q-progress {
+      display: flex; gap: 0.5rem; margin-bottom: 2rem;
+    }
+    .q-progress-dot {
+      height: 4px; border-radius: 2px; flex: 1;
+      background: rgba(0,0,0,0.1); transition: background 0.3s;
+    }
+    .q-progress-dot.active { background: #1a1a1a; }
     .q-group {
       background: #fafafa;
       border: 1px solid rgba(0,0,0,0.06);
@@ -563,12 +573,65 @@
       display: block; font-size: 1rem; font-weight: 600;
       margin-bottom: 0.6rem; color: #1a1a1a;
     }
-    .radio-row { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .q-group .q-hint {
+      font-size: 0.82rem; color: #999; margin-bottom: 0.75rem; font-weight: 400;
+    }
+    /* Condition category cards */
+    .condition-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 0.65rem;
+    }
+    @media (max-width: 480px) { .condition-grid { grid-template-columns: 1fr; } }
+    .condition-card {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      padding: 0.9rem 1rem;
+      border: 2px solid rgba(0,0,0,0.08);
+      border-radius: 12px; cursor: pointer;
+      transition: all 0.15s ease;
+      background: #fff;
+    }
+    .condition-card:hover { border-color: rgba(0,0,0,0.2); }
+    .condition-card.selected { border-color: #1a1a1a; background: #f5f5f5; }
+    .condition-card input[type="checkbox"] {
+      accent-color: #1a1a1a; margin-top: 2px; flex-shrink: 0;
+    }
+    .condition-card-text { flex: 1; }
+    .condition-card-title { font-size: 0.95rem; font-weight: 600; color: #1a1a1a; }
+    .condition-card-sub { font-size: 0.78rem; color: #888; margin-top: 0.15rem; }
+    .condition-card.none-card { grid-column: 1 / -1; }
+    /* Deep-dive section header */
+    .deepdive-section {
+      border: 2px solid rgba(0,0,0,0.06);
+      border-radius: 14px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+      background: #fafafa;
+    }
+    .deepdive-section .section-header {
+      font-size: 1rem; font-weight: 700; color: #1a1a1a;
+      margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .deepdive-section .section-badge {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; padding: 0.2rem 0.6rem;
+      border-radius: 100px; background: #1a1a1a; color: #fff;
+    }
+    .deepdive-section .q-group {
+      background: #fff; border-color: rgba(0,0,0,0.08); margin-bottom: 0.75rem;
+    }
+    .deepdive-section .q-group:last-child { margin-bottom: 0; }
+    .radio-row { display: flex; gap: 1.25rem; flex-wrap: wrap; }
     .radio-row label {
       display: flex; align-items: center; gap: 0.4rem;
       font-size: 0.95rem; cursor: pointer; color: #555;
     }
     .radio-row input[type="radio"] { accent-color: #1a1a1a; }
+    .checkbox-row { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+    .checkbox-row label {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-size: 0.95rem; cursor: pointer; color: #555;
+    }
+    .checkbox-row input[type="checkbox"] { accent-color: #1a1a1a; }
     .likert-row { display: flex; align-items: center; gap: 0.25rem; }
     .likert-row .end-label { font-size: 0.75rem; color: #888; min-width: 55px; text-align: center; }
     .likert-option {
@@ -578,13 +641,20 @@
     .likert-option input[type="radio"] { accent-color: #1a1a1a; margin-bottom: 0.15rem; }
     .likert-option span { font-size: 0.75rem; color: #888; }
     .q-textarea {
-      width: 100%; padding: 0.75rem;
+      width: 100%; padding: 0.75rem; box-sizing: border-box;
       font-size: 0.95rem; font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
       background: #fff; color: #1a1a1a;
       border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;
       resize: vertical;
     }
     .q-textarea:focus { outline: none; border-color: #1a1a1a; }
+    .q-input {
+      width: 100%; padding: 0.65rem 0.75rem; box-sizing: border-box;
+      font-size: 0.95rem; font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      background: #fff; color: #1a1a1a;
+      border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;
+    }
+    .q-input:focus { outline: none; border-color: #1a1a1a; }
     .q-submit {
       width: 100%; padding: 1.1rem;
       font-size: 1.1rem; font-weight: 700;
@@ -595,6 +665,18 @@
       transition: all 0.2s ease;
     }
     .q-submit:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+    .q-back {
+      width: 100%; padding: 0.85rem;
+      font-size: 1rem; font-weight: 600;
+      color: #888; background: transparent;
+      border: 1px solid rgba(0,0,0,0.12); border-radius: 100px;
+      cursor: pointer; font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      margin-top: 0.6rem;
+      transition: all 0.2s ease;
+    }
+    .q-back:hover { color: #1a1a1a; border-color: #1a1a1a; }
+    .q-error { color: #e74c3c; font-size: 0.85rem; margin-top: 0.4rem; display: none; }
+    .q-error.visible { display: block; }
 
     /* ─── Results Page ─── */
     .final-results {
@@ -2494,40 +2576,64 @@ function updateLoadingProgress(pct, status) {
 function showQuestionnaire() {
   document.getElementById('page-webcam').style.display = 'none';
   const overlay = document.getElementById('questionnaire-overlay');
+
   overlay.innerHTML = `
     <div class="questionnaire-card">
-      <div class="q-title">Quick Questions</div>
-      <div class="q-subtitle">Brief questions about your experience</div>
-      <form id="q-form">
+      <div class="q-progress">
+        <div class="q-progress-dot active" id="prog-1"></div>
+        <div class="q-progress-dot" id="prog-2"></div>
+      </div>
+
+      <!-- ══ PAGE 1 ══ -->
+      <div class="q-page" id="q-page-1">
+        <div class="q-title">Quick Questions</div>
+        <div class="q-subtitle">Helps us understand your results in context — takes about 60 seconds.</div>
+
         <div class="q-group">
-          <label class="q-label">Do you have any known neurological conditions?</label>
-          <div class="radio-row">
-            <label><input type="radio" name="neurological" value="no" required> No</label>
-            <label><input type="radio" name="neurological" value="yes"> Yes</label>
+          <label class="q-label">Do you have any diagnosed medical conditions that affect your physical movement, stamina, or balance?</label>
+          <div class="q-hint">Select all that apply. Select "None" if you are generally healthy.</div>
+          <div class="condition-grid" id="condition-grid">
+            <label class="condition-card" id="card-neurological">
+              <input type="checkbox" name="cond_neurological" value="neurological" id="cb-neuro">
+              <div class="condition-card-text">
+                <div class="condition-card-title">Neurological</div>
+                <div class="condition-card-sub">Brain, Nerves, Parkinson's, Tremor</div>
+              </div>
+            </label>
+            <label class="condition-card" id="card-cardiovascular">
+              <input type="checkbox" name="cond_cardiovascular" value="cardiovascular" id="cb-cardio">
+              <div class="condition-card-text">
+                <div class="condition-card-title">Cardiovascular</div>
+                <div class="condition-card-sub">Heart, Lungs, Circulation</div>
+              </div>
+            </label>
+            <label class="condition-card" id="card-orthopedic">
+              <input type="checkbox" name="cond_orthopedic" value="orthopedic" id="cb-ortho">
+              <div class="condition-card-text">
+                <div class="condition-card-title">Orthopedic</div>
+                <div class="condition-card-sub">Joint Pain, Prior Surgeries, Arthritis</div>
+              </div>
+            </label>
+            <label class="condition-card none-card" id="card-none">
+              <input type="checkbox" name="cond_none" value="none" id="cb-none">
+              <div class="condition-card-text">
+                <div class="condition-card-title">None / Healthy Control</div>
+                <div class="condition-card-sub">No relevant diagnosed conditions</div>
+              </div>
+            </label>
           </div>
+          <div class="q-error" id="cond-error">Please select at least one option.</div>
         </div>
-        <div class="q-group">
-          <label class="q-label">Do you have any joint pain (knees, hips) that affects standing?</label>
-          <div class="radio-row">
-            <label><input type="radio" name="jointPain" value="no" required> No</label>
-            <label><input type="radio" name="jointPain" value="yes"> Yes</label>
-          </div>
-        </div>
-        <div class="q-group">
-          <label class="q-label">History of injury or surgery affecting legs/hips?</label>
-          <div class="radio-row">
-            <label><input type="radio" name="legInjury" value="no" required> No</label>
-            <label><input type="radio" name="legInjury" value="yes"> Yes</label>
-          </div>
-        </div>
+
         <div class="q-group">
           <label class="q-label">Did the camera accurately count your stands?</label>
           <div class="radio-row">
             <label><input type="radio" name="accuracy" value="yes" required> Yes, accurate</label>
-            <label><input type="radio" name="accuracy" value="close"> Close, off by 1-2</label>
+            <label><input type="radio" name="accuracy" value="close"> Close, off by 1–2</label>
             <label><input type="radio" name="accuracy" value="no"> No, significantly off</label>
           </div>
         </div>
+
         <div class="q-group">
           <label class="q-label">Current fatigue level (1 = fresh, 7 = exhausted):</label>
           <div class="likert-row">
@@ -2541,6 +2647,7 @@ function showQuestionnaire() {
             <span class="end-label">Exhausted</span>
           </div>
         </div>
+
         <div class="q-group">
           <label class="q-label">Task motivation (1 = low, 7 = high):</label>
           <div class="likert-row">
@@ -2554,35 +2661,343 @@ function showQuestionnaire() {
             <span class="end-label">High</span>
           </div>
         </div>
+
         <div class="q-group">
           <label class="q-label">Your voice shapes this research <span style="color:#e74c3c">*</span></label>
           <textarea name="feedback" rows="3" class="q-textarea" required minlength="10" placeholder="What was it like? Was anything confusing, broken, or surprisingly smooth? We read every response — your honest take helps us build something that actually works for real people."></textarea>
         </div>
-        <button type="submit" class="q-submit">Continue to Results</button>
-      </form>
+
+        <button type="button" class="q-submit" id="q-page1-next">Continue →</button>
+      </div>
+
+      <!-- ══ PAGE 2 ══ -->
+      <div class="q-page hidden" id="q-page-2">
+        <div class="q-title">A few more questions</div>
+        <div class="q-subtitle">Because you indicated a relevant condition — this helps us interpret your motor data accurately. All fields are optional.</div>
+
+        <!-- A. Neurological -->
+        <div class="deepdive-section" id="dd-neuro" style="display:none">
+          <div class="section-header">
+            <span class="section-badge">Neurological</span>
+            Brain, Nerves &amp; Movement Disorders
+          </div>
+
+          <div class="q-group">
+            <label class="q-label">Specific diagnosis:</label>
+            <div class="radio-row">
+              <label><input type="radio" name="neuro_diagnosis" value="parkinsons"> Parkinson's Disease</label>
+              <label><input type="radio" name="neuro_diagnosis" value="essential_tremor"> Essential Tremor</label>
+              <label><input type="radio" name="neuro_diagnosis" value="ms"> Multiple Sclerosis</label>
+              <label><input type="radio" name="neuro_diagnosis" value="stroke"> Stroke</label>
+              <label><input type="radio" name="neuro_diagnosis" value="other"> Other</label>
+            </div>
+          </div>
+
+          <div class="q-group">
+            <label class="q-label">Year of diagnosis (optional):</label>
+            <input type="number" name="neuro_diagnosis_year" class="q-input" placeholder="e.g. 2018" min="1950" max="2026" style="max-width:160px;">
+          </div>
+
+          <div class="q-group">
+            <label class="q-label">Current mobility — Hoehn &amp; Yahr self-report:</label>
+            <div class="q-hint">Pick the description that best fits you right now.</div>
+            <div class="radio-row" style="flex-direction:column; gap:0.5rem;">
+              <label><input type="radio" name="neuro_hy_stage" value="1"> Stage 1 — Mild symptoms, only on one side of the body</label>
+              <label><input type="radio" name="neuro_hy_stage" value="2"> Stage 2 — Symptoms on both sides, balance still fine</label>
+              <label><input type="radio" name="neuro_hy_stage" value="3"> Stage 3 — Balance is impaired; feel unsteady when standing or turning</label>
+              <label><input type="radio" name="neuro_hy_stage" value="4"> Stage 4 — Severe disability; can stand unassisted but need a cane/walker for safety</label>
+            </div>
+          </div>
+
+          <div class="q-group">
+            <label class="q-label">Side of onset:</label>
+            <div class="radio-row">
+              <label><input type="radio" name="neuro_side_of_onset" value="left"> Left</label>
+              <label><input type="radio" name="neuro_side_of_onset" value="right"> Right</label>
+              <label><input type="radio" name="neuro_side_of_onset" value="both"> Both / Symmetric</label>
+            </div>
+          </div>
+
+          <div class="q-group">
+            <label class="q-label">Are you currently on Levodopa or other motor medication?</label>
+            <div class="radio-row">
+              <label><input type="radio" name="neuro_on_medication" value="yes" id="neuro-med-yes"> Yes</label>
+              <label><input type="radio" name="neuro_on_medication" value="no"> No</label>
+            </div>
+          </div>
+
+          <div class="q-group" id="neuro-dose-group" style="display:none">
+            <label class="q-label">Hours since your last dose:</label>
+            <div class="q-hint">Important for detecting "OFF" state — when medication has worn off and tremor may be stronger.</div>
+            <input type="number" name="neuro_hours_since_dose" class="q-input" placeholder="e.g. 2" min="0" max="24" step="0.5" style="max-width:120px;">
+          </div>
+
+          <div class="q-group">
+            <label class="q-label">Do you experience dyskinesia?</label>
+            <div class="q-hint">Involuntary writhing or wiggling movements — distinct from tremor, often a side effect of long-term Levodopa use.</div>
+            <div class="radio-row">
+              <label><input type="radio" name="neuro_dyskinesia" value="yes"> Yes</label>
+              <label><input type="radio" name="neuro_dyskinesia" value="no"> No</label>
+            </div>
+          </div>
+
+          <div class="q-group">
+            <label class="q-label">Anything else you'd like to share about your diagnosis or how you felt during the test?</label>
+            <textarea name="neuro_notes" rows="2" class="q-textarea" placeholder="Optional — e.g. diagnosed 3 years ago, currently well-controlled, felt a bit shaky today..."></textarea>
+          </div>
+        </div>
+
+        <!-- B. Cardiovascular -->
+        <div class="deepdive-section" id="dd-cardio" style="display:none">
+          <div class="section-header">
+            <span class="section-badge">Cardiovascular</span>
+            Heart, Lungs &amp; Stamina
+          </div>
+
+          <div class="q-group">
+            <label class="q-label">Specific condition:</label>
+            <div class="radio-row">
+              <label><input type="radio" name="cardio_condition" value="heart_failure"> Heart Failure / Cardiac Disease</label>
+              <label><input type="radio" name="cardio_condition" value="copd"> COPD / Lung Disease</label>
+              <label><input type="radio" name="cardio_condition" value="hypertension"> Hypertension</label>
+              <label><input type="radio" name="cardio_condition" value="other"> Other</label>
+            </div>
+          </div>
+
+          <div class="q-group">
+            <label class="q-label">Did you experience shortness of breath or chest pain during this test?</label>
+            <div class="radio-row">
+              <label><input type="radio" name="cardio_symptoms_during" value="yes"> Yes</label>
+              <label><input type="radio" name="cardio_symptoms_during" value="no"> No</label>
+            </div>
+          </div>
+
+          <div class="q-group">
+            <label class="q-label">Average weekly physical activity:</label>
+            <div class="radio-row">
+              <label><input type="radio" name="cardio_activity_level" value="0-30"> 0–30 min/week</label>
+              <label><input type="radio" name="cardio_activity_level" value="30-150"> 30–150 min/week</label>
+              <label><input type="radio" name="cardio_activity_level" value="150+"> 150+ min/week</label>
+            </div>
+          </div>
+
+          <div class="q-group">
+            <label class="q-label">Anything else you'd like to share?</label>
+            <textarea name="cardio_notes" rows="2" class="q-textarea" placeholder="Optional — e.g. recently started cardiac rehab, use supplemental oxygen..."></textarea>
+          </div>
+        </div>
+
+        <!-- C. Orthopedic -->
+        <div class="deepdive-section" id="dd-ortho" style="display:none">
+          <div class="section-header">
+            <span class="section-badge">Orthopedic</span>
+            Joints, Surgeries &amp; Structural Conditions
+          </div>
+
+          <div class="q-group">
+            <label class="q-label">Which joint(s) are affected?</label>
+            <div class="checkbox-row">
+              <label><input type="checkbox" name="ortho_joint_left_knee" value="left_knee"> Left Knee</label>
+              <label><input type="checkbox" name="ortho_joint_right_knee" value="right_knee"> Right Knee</label>
+              <label><input type="checkbox" name="ortho_joint_hips" value="hips"> Hips</label>
+              <label><input type="checkbox" name="ortho_joint_back" value="back"> Back / Spine</label>
+            </div>
+          </div>
+
+          <div class="q-group">
+            <label class="q-label">Did you use the armrests of the chair or a walker to help you stand during this test?</label>
+            <div class="radio-row">
+              <label><input type="radio" name="ortho_assistive_device" value="yes"> Yes</label>
+              <label><input type="radio" name="ortho_assistive_device" value="no"> No</label>
+            </div>
+          </div>
+
+          <div class="q-group">
+            <label class="q-label">Anything else you'd like to share?</label>
+            <textarea name="ortho_notes" rows="2" class="q-textarea" placeholder="Optional — e.g. knee replacement in 2022, waiting on hip surgery, wearing a brace..."></textarea>
+          </div>
+        </div>
+
+        <button type="button" class="q-submit" id="q-page2-submit">Submit &amp; See Results</button>
+        <button type="button" class="q-back" id="q-page2-back">← Back</button>
+      </div>
     </div>
   `;
   overlay.style.display = 'flex';
 
-  document.getElementById('q-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const feedback = this.querySelector('textarea[name="feedback"]').value.trim();
-    if (feedback.length < 10) {
-      this.querySelector('textarea[name="feedback"]').style.borderColor = '#e74c3c';
-      this.querySelector('textarea[name="feedback"]').focus();
+  // ── Condition card selection logic ──────────────────────────────────────────
+  const condCards  = overlay.querySelectorAll('.condition-card');
+  const cbNone     = overlay.querySelector('#cb-none');
+  const cbConditions = overlay.querySelectorAll('.condition-card:not(.none-card) input[type="checkbox"]');
+
+  condCards.forEach(card => {
+    card.addEventListener('click', function() {
+      const cb = this.querySelector('input[type="checkbox"]');
+      // Toggle happens naturally via the label; reflect visual state after tick
+      setTimeout(() => {
+        if (cb === cbNone && cbNone.checked) {
+          cbConditions.forEach(c => { c.checked = false; });
+        } else if (cb !== cbNone && cb.checked) {
+          cbNone.checked = false;
+        }
+        syncCardStyles();
+      }, 0);
+    });
+  });
+
+  function syncCardStyles() {
+    condCards.forEach(card => {
+      const cb = card.querySelector('input[type="checkbox"]');
+      card.classList.toggle('selected', cb.checked);
+    });
+    overlay.querySelector('#card-none').classList.toggle('selected', cbNone.checked);
+  }
+
+  // ── Medication toggle: show dose hours only if on medication ────────────────
+  overlay.querySelectorAll('input[name="neuro_on_medication"]').forEach(r => {
+    r.addEventListener('change', function() {
+      overlay.querySelector('#neuro-dose-group').style.display =
+        this.value === 'yes' ? 'block' : 'none';
+    });
+  });
+
+  // ── Page 1 → Page 2 ─────────────────────────────────────────────────────────
+  overlay.querySelector('#q-page1-next').addEventListener('click', function() {
+    // Validate condition selection
+    const anyChecked = [...overlay.querySelectorAll('.condition-card input[type="checkbox"]')].some(c => c.checked);
+    if (!anyChecked) {
+      overlay.querySelector('#cond-error').classList.add('visible');
+      overlay.querySelector('#condition-grid').scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
-    this.querySelector('textarea[name="feedback"]').style.borderColor = '';
-    const responses = Object.fromEntries(new FormData(this).entries());
+    overlay.querySelector('#cond-error').classList.remove('visible');
+
+    // Validate required radio groups on page 1
+    const page1 = overlay.querySelector('#q-page-1');
+    const requiredGroups = ['accuracy', 'fatigue', 'motivation'];
+    for (const name of requiredGroups) {
+      if (!page1.querySelector(`input[name="${name}"]:checked`)) {
+        const group = page1.querySelector(`input[name="${name}"]`).closest('.q-group');
+        group.style.outline = '2px solid #e74c3c';
+        group.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+    }
+    // Clear any outlines
+    page1.querySelectorAll('.q-group').forEach(g => g.style.outline = '');
+
+    // Validate feedback
+    const feedbackEl = page1.querySelector('textarea[name="feedback"]');
+    if (feedbackEl.value.trim().length < 10) {
+      feedbackEl.style.borderColor = '#e74c3c';
+      feedbackEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      feedbackEl.focus();
+      return;
+    }
+    feedbackEl.style.borderColor = '';
+
+    const isNoneOnly = cbNone.checked && !([...cbConditions].some(c => c.checked));
+    if (isNoneOnly) {
+      // Skip page 2 — save and show results directly
+      saveAndFinish();
+      return;
+    }
+
+    // Show relevant deep-dive sections
+    const hasNeuro   = overlay.querySelector('#cb-neuro').checked;
+    const hasCardio  = overlay.querySelector('#cb-cardio').checked;
+    const hasOrtho   = overlay.querySelector('#cb-ortho').checked;
+    overlay.querySelector('#dd-neuro').style.display  = hasNeuro  ? 'block' : 'none';
+    overlay.querySelector('#dd-cardio').style.display = hasCardio ? 'block' : 'none';
+    overlay.querySelector('#dd-ortho').style.display  = hasOrtho  ? 'block' : 'none';
+
+    // Transition to page 2
+    overlay.querySelector('#q-page-1').classList.add('hidden');
+    overlay.querySelector('#q-page-2').classList.remove('hidden');
+    overlay.querySelector('#prog-2').classList.add('active');
+    overlay.scrollTop = 0;
+  });
+
+  // ── Page 2 → Page 1 ─────────────────────────────────────────────────────────
+  overlay.querySelector('#q-page2-back').addEventListener('click', function() {
+    overlay.querySelector('#q-page-2').classList.add('hidden');
+    overlay.querySelector('#q-page-1').classList.remove('hidden');
+    overlay.querySelector('#prog-2').classList.remove('active');
+    overlay.scrollTop = 0;
+  });
+
+  // ── Page 2 submit ────────────────────────────────────────────────────────────
+  overlay.querySelector('#q-page2-submit').addEventListener('click', function() {
+    saveAndFinish();
+  });
+
+  function saveAndFinish() {
+    const page1 = overlay.querySelector('#q-page-1');
+    const page2 = overlay.querySelector('#q-page-2');
+
+    // Collect conditions
+    const conditions = [...overlay.querySelectorAll('.condition-card input[type="checkbox"]')]
+      .filter(c => c.checked).map(c => c.value);
+    const isHealthyControl = conditions.length === 1 && conditions[0] === 'none';
+
+    // Collect page 1 values
+    const getRadio = (name, root) => {
+      const el = (root || document).querySelector(`input[name="${name}"]:checked`);
+      return el ? el.value : null;
+    };
+    const getText = (name, root) => {
+      const el = (root || document).querySelector(`[name="${name}"]`);
+      return el ? el.value.trim() : '';
+    };
+
+    const responses = {
+      conditions,
+      is_healthy_control:  isHealthyControl,
+      accuracy:            getRadio('accuracy', page1),
+      fatigue:             getRadio('fatigue', page1),
+      motivation:          getRadio('motivation', page1),
+      feedback:            getText('feedback', page1),
+    };
+
+    // Neurological deep-dive
+    if (overlay.querySelector('#cb-neuro').checked) {
+      responses.neuro_diagnosis        = getRadio('neuro_diagnosis', page2);
+      responses.neuro_diagnosis_year   = getText('neuro_diagnosis_year', page2) || null;
+      responses.neuro_hy_stage         = getRadio('neuro_hy_stage', page2);
+      responses.neuro_side_of_onset    = getRadio('neuro_side_of_onset', page2);
+      responses.neuro_on_medication    = getRadio('neuro_on_medication', page2);
+      responses.neuro_hours_since_dose = getText('neuro_hours_since_dose', page2) || null;
+      responses.neuro_dyskinesia       = getRadio('neuro_dyskinesia', page2);
+      responses.neuro_notes            = getText('neuro_notes', page2);
+    }
+
+    // Cardiovascular deep-dive
+    if (overlay.querySelector('#cb-cardio').checked) {
+      responses.cardio_condition        = getRadio('cardio_condition', page2);
+      responses.cardio_symptoms_during  = getRadio('cardio_symptoms_during', page2);
+      responses.cardio_activity_level   = getRadio('cardio_activity_level', page2);
+      responses.cardio_notes            = getText('cardio_notes', page2);
+    }
+
+    // Orthopedic deep-dive
+    if (overlay.querySelector('#cb-ortho').checked) {
+      const orthoJoints = [...page2.querySelectorAll('input[name^="ortho_joint_"]:checked')].map(c => c.value);
+      responses.ortho_joints            = orthoJoints;
+      responses.ortho_assistive_device  = getRadio('ortho_assistive_device', page2);
+      responses.assisted_stand          = responses.ortho_assistive_device === 'yes';
+      responses.ortho_notes             = getText('ortho_notes', page2);
+    }
+
+    responses.completedAt    = new Date().toISOString();
+    responses.participantID  = participantID;
+
     db.collection("participants").doc(participantID)
-      .collection("questionnaire").doc("responses").set({
-        ...responses,
-        completedAt: new Date().toISOString(),
-        participantID,
-      }).catch(e => console.warn("Questionnaire save failed:", e));
+      .collection("questionnaire").doc("responses").set(responses)
+      .catch(e => console.warn("Questionnaire save failed:", e));
+
     overlay.style.display = 'none';
     showFinalResults();
-  });
+  }
 }
 
 // ── Final Results ──
@@ -2698,4 +3113,4 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 </script>
 </body>
-</html>
+</html> 
