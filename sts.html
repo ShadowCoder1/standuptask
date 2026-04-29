@@ -2691,6 +2691,10 @@ function showQuestionnaire() {
               <label><input type="radio" name="neuro_diagnosis" value="stroke"> Stroke</label>
               <label><input type="radio" name="neuro_diagnosis" value="other"> Other</label>
             </div>
+            <div id="neuro-other-group" style="display:none; margin-top:10px;">
+              <label class="q-label">Please specify your diagnosis:</label>
+              <input type="text" name="neuro_diagnosis_other" class="q-input" placeholder="e.g., Dystonia, Huntington's, etc.">
+            </div>
           </div>
 
           <div class="q-group">
@@ -2853,6 +2857,14 @@ function showQuestionnaire() {
     overlay.querySelector('#card-none').classList.toggle('selected', cbNone.checked);
   }
 
+  // ── Other diagnosis toggle ───────────────────────────────────────────────────
+  overlay.querySelectorAll('input[name="neuro_diagnosis"]').forEach(r => {
+    r.addEventListener('change', function() {
+      overlay.querySelector('#neuro-other-group').style.display =
+        this.value === 'other' ? 'block' : 'none';
+    });
+  });
+
   // ── Medication toggle: show dose hours only if on medication ────────────────
   overlay.querySelectorAll('input[name="neuro_on_medication"]').forEach(r => {
     r.addEventListener('change', function() {
@@ -2962,6 +2974,8 @@ function showQuestionnaire() {
     // Neurological deep-dive
     if (overlay.querySelector('#cb-neuro').checked) {
       responses.neuro_diagnosis        = getRadio('neuro_diagnosis', page2);
+      responses.neuro_diagnosis_other  = getRadio('neuro_diagnosis', page2) === 'other'
+                                         ? (getText('neuro_diagnosis_other', page2) || null) : null;
       responses.neuro_diagnosis_year   = getText('neuro_diagnosis_year', page2) || null;
       responses.neuro_hy_stage         = getRadio('neuro_hy_stage', page2);
       responses.neuro_side_of_onset    = getRadio('neuro_side_of_onset', page2);
@@ -3113,4 +3127,4 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 </script>
 </body>
-</html> 
+</html>
