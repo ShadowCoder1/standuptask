@@ -532,6 +532,122 @@
     @media (max-width: 600px) { .countdown-num { font-size: 12rem; } }
 
     /* ─── Questionnaire ─── */
+    /* ── Clinical Survey Overlay ── */
+    #cs-overlay {
+      display: none;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: #0a0a0a;
+      z-index: 9998;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', monospace;
+      -webkit-font-smoothing: antialiased;
+    }
+    #cs-overlay .cs-shell {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 48px 20px 80px;
+    }
+    #cs-overlay .cs-card { width: 100%; max-width: 540px; }
+    #cs-overlay .cs-tag {
+      font-size: 0.68rem; font-weight: 600; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #00ff88; margin-bottom: 10px;
+    }
+    #cs-overlay h2.cs-title {
+      font-size: 1.55rem; font-weight: 600; letter-spacing: -0.02em;
+      line-height: 1.2; color: #fff; margin-bottom: 10px;
+    }
+    #cs-overlay .cs-desc {
+      font-size: 0.8rem; color: rgba(255,255,255,0.38); line-height: 1.6; margin-bottom: 32px;
+    }
+    #cs-overlay .cs-section {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.2em;
+      text-transform: uppercase; color: #00ff88;
+      margin: 36px 0 16px; display: flex; align-items: center; gap: 10px;
+    }
+    #cs-overlay .cs-section::after {
+      content: ''; flex: 1; height: 1px; background: #1f1f1f;
+    }
+    #cs-overlay .cs-unit-toggle {
+      display: inline-flex; background: #111; border: 1px solid #1f1f1f;
+      border-radius: 6px; overflow: hidden; margin-bottom: 28px;
+    }
+    #cs-overlay .cs-unit-toggle button {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+      font-weight: 600; letter-spacing: 0.08em; padding: 8px 18px;
+      background: transparent; color: rgba(255,255,255,0.38); border: none; cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    #cs-overlay .cs-unit-toggle button.cs-active { background: #00ff88; color: #000; }
+    #cs-overlay .cs-field { margin-bottom: 20px; }
+    #cs-overlay .cs-field > label {
+      display: block; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.38); margin-bottom: 7px; text-transform: uppercase;
+    }
+    #cs-overlay .cs-req { color: #00ff88; margin-left: 3px; }
+    #cs-overlay input[type="text"],
+    #cs-overlay input[type="number"],
+    #cs-overlay select {
+      width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
+      color: #f0f0f0; background: #111; border: 1px solid #1f1f1f; border-radius: 6px;
+      padding: 12px 14px; appearance: none; -webkit-appearance: none; outline: none;
+      transition: border-color 0.15s;
+    }
+    #cs-overlay input[type="text"]:focus,
+    #cs-overlay input[type="number"]:focus,
+    #cs-overlay select:focus { border-color: #00ff88; }
+    #cs-overlay input.cs-err, #cs-overlay select.cs-err { border-color: #ff4d6d; }
+    #cs-overlay input[type="number"]::-webkit-inner-spin-button,
+    #cs-overlay input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    #cs-overlay input[type="number"] { -moz-appearance: textfield; }
+    #cs-overlay select option { background: #1a1a1a; }
+    #cs-overlay .cs-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    #cs-overlay .cs-sub-label { font-size: 0.65rem; color: rgba(255,255,255,0.38); margin-top: 5px; text-align: center; }
+    #cs-overlay .cs-hint { font-size: 0.65rem; color: rgba(255,255,255,0.38); margin-top: 5px; }
+    #cs-overlay .cs-radio-group { display: flex; flex-direction: column; gap: 8px; }
+    #cs-overlay .cs-radio-row {
+      display: flex; align-items: center; gap: 12px;
+      background: #111; border: 1px solid #1f1f1f; border-radius: 6px;
+      padding: 12px 14px; cursor: pointer; transition: border-color 0.15s;
+    }
+    #cs-overlay .cs-radio-row:hover { border-color: rgba(0,255,136,0.3); }
+    #cs-overlay .cs-radio-row input[type="radio"] { display: none; }
+    #cs-overlay .cs-dot {
+      width: 16px; height: 16px; border-radius: 50%; border: 2px solid #1f1f1f;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.15s;
+    }
+    #cs-overlay .cs-dot::after {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: transparent; transition: background 0.15s;
+    }
+    #cs-overlay .cs-radio-row.cs-selected { border-color: #00ff88; }
+    #cs-overlay .cs-radio-row.cs-selected .cs-dot { border-color: #00ff88; }
+    #cs-overlay .cs-radio-row.cs-selected .cs-dot::after { background: #00ff88; }
+    #cs-overlay .cs-radio-row .cs-rtxt { font-size: 0.82rem; color: #f0f0f0; }
+    #cs-overlay .cs-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    #cs-overlay .cs-chip {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 500;
+      padding: 8px 16px; border-radius: 20px; border: 1px solid #1f1f1f;
+      background: #111; color: rgba(255,255,255,0.38); cursor: pointer; transition: all 0.15s;
+    }
+    #cs-overlay .cs-chip.cs-selected {
+      border-color: #00ff88; background: rgba(0,255,136,0.08); color: #00ff88;
+    }
+    #cs-overlay .cs-field-err {
+      font-size: 0.68rem; color: #ff4d6d; margin-top: 5px; display: none;
+    }
+    #cs-overlay .cs-field-err.cs-show { display: block; }
+    #cs-overlay #cs-med-block { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.3s ease, opacity 0.25s ease; }
+    #cs-overlay #cs-med-block.cs-visible { max-height: 4000px; opacity: 1; }
+    #cs-overlay .cs-submit {
+      width: 100%; margin-top: 36px; font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #000; background: #00ff88; border: none; border-radius: 8px;
+      padding: 16px; cursor: pointer; transition: background 0.15s, opacity 0.15s;
+    }
+    #cs-overlay .cs-submit:hover { background: #00cc6a; }
+    #cs-overlay .cs-submit:disabled { opacity: 0.45; cursor: not-allowed; }
+
     .questionnaire-overlay {
       display: none;
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -757,6 +873,7 @@
 </div>
 
 <!-- Questionnaire Overlay -->
+<div id="cs-overlay"></div>
 <div id="questionnaire-overlay" class="questionnaire-overlay"></div>
 
 <!-- Webcam Page -->
@@ -3013,7 +3130,7 @@ function showQuestionnaire() {
         .collection("questionnaire").doc("responses").set(responses)
         .then(() => {
           overlay.style.display = 'none';
-          showFinalResults();
+          showClinicalSurvey();
         })
         .catch(e => {
           if (attempt < 3) {
@@ -3026,6 +3143,448 @@ function showQuestionnaire() {
         });
     saveWithRetry();
   }
+}
+
+// ── Clinical Survey ──
+
+let cs_unit = 'metric';
+const cs_sel = {
+  sex_at_birth: null, clinical_status: null,
+  diagnosis_confirmed: null, severity: null, falls_6mo: null,
+  footwear: null, chair_type: null, clothing_fit: null,
+  symptom_side: null, walking_aid: null,
+};
+const cs_multi = { symptoms: new Set() };
+
+function showClinicalSurvey() {
+  const ov = document.getElementById('cs-overlay');
+  ov.innerHTML = `
+  <div class="cs-shell">
+    <div class="cs-card">
+      <div class="cs-tag">ActionCensus · Physical &amp; Clinical Profile</div>
+      <h2 class="cs-title">One more step</h2>
+      <p class="cs-desc">This helps us scale your movement data into physical units. It takes about 60 seconds.</p>
+
+      <div class="cs-unit-toggle">
+        <button id="cs-btn-metric" class="cs-active" onclick="cs_setUnits('metric')">Metric</button>
+        <button id="cs-btn-imperial" onclick="cs_setUnits('imperial')">Imperial</button>
+      </div>
+
+      <div class="cs-section">Demographics</div>
+
+      <div class="cs-field">
+        <label>Sex at birth<span class="cs-req">*</span></label>
+        <div class="cs-radio-group">
+          <label class="cs-radio-row" onclick="cs_radio('sex_at_birth','M',this)">
+            <input type="radio" name="cs_sex"><div class="cs-dot"></div><span class="cs-rtxt">Male</span>
+          </label>
+          <label class="cs-radio-row" onclick="cs_radio('sex_at_birth','F',this)">
+            <input type="radio" name="cs_sex"><div class="cs-dot"></div><span class="cs-rtxt">Female</span>
+          </label>
+        </div>
+        <div class="cs-field-err" id="cs-err-sex">Please select one.</div>
+      </div>
+
+      <div class="cs-field">
+        <label>Age (years)<span class="cs-req">*</span></label>
+        <input type="number" id="cs-age" min="5" max="110" step="1" placeholder="e.g. 42">
+        <div class="cs-field-err" id="cs-err-age">Enter a valid age (5–110).</div>
+      </div>
+
+      <div class="cs-section">Anthropometrics</div>
+
+      <div class="cs-field">
+        <label>Height<span class="cs-req">*</span></label>
+        <div id="cs-h-metric"><input type="number" id="cs-h-cm" min="50" max="250" step="0.1" placeholder="cm"></div>
+        <div id="cs-h-imperial" style="display:none">
+          <div class="cs-two-col">
+            <div><input type="number" id="cs-h-ft" min="1" max="8" step="1" placeholder="ft"><div class="cs-sub-label">feet</div></div>
+            <div><input type="number" id="cs-h-in" min="0" max="11.9" step="0.1" placeholder="in"><div class="cs-sub-label">inches</div></div>
+          </div>
+        </div>
+        <div class="cs-field-err" id="cs-err-height">Enter a valid height.</div>
+      </div>
+
+      <div class="cs-field">
+        <label>Weight<span class="cs-req">*</span></label>
+        <div id="cs-w-metric"><input type="number" id="cs-w-kg" min="20" max="300" step="0.1" placeholder="kg"></div>
+        <div id="cs-w-imperial" style="display:none"><input type="number" id="cs-w-lbs" min="44" max="660" step="0.1" placeholder="lbs"></div>
+        <div class="cs-field-err" id="cs-err-weight">Enter a valid weight.</div>
+      </div>
+
+      <div class="cs-section">Clinical Context</div>
+
+      <div class="cs-field">
+        <label>Clinical status<span class="cs-req">*</span></label>
+        <div class="cs-radio-group">
+          <label class="cs-radio-row" onclick="cs_radio('clinical_status','healthy_baseline',this)">
+            <input type="radio" name="cs_status"><div class="cs-dot"></div><span class="cs-rtxt">Healthy baseline</span>
+          </label>
+          <label class="cs-radio-row" onclick="cs_radio('clinical_status','parkinsons',this)">
+            <input type="radio" name="cs_status"><div class="cs-dot"></div><span class="cs-rtxt">Parkinson's disease</span>
+          </label>
+          <label class="cs-radio-row" onclick="cs_radio('clinical_status','ms',this)">
+            <input type="radio" name="cs_status"><div class="cs-dot"></div><span class="cs-rtxt">Multiple sclerosis</span>
+          </label>
+          <label class="cs-radio-row" onclick="cs_radio('clinical_status','essential_tremor',this)">
+            <input type="radio" name="cs_status"><div class="cs-dot"></div><span class="cs-rtxt">Essential tremor</span>
+          </label>
+          <label class="cs-radio-row" onclick="cs_radio('clinical_status','other',this)">
+            <input type="radio" name="cs_status"><div class="cs-dot"></div><span class="cs-rtxt">Other</span>
+          </label>
+        </div>
+        <div id="cs-other-block" style="margin-top:10px;display:none;">
+          <input type="text" id="cs-status-other" placeholder="Describe your condition…" autocorrect="off" spellcheck="false">
+          <div class="cs-field-err cs-show" id="cs-err-status-other" style="display:none">Please describe your condition.</div>
+        </div>
+        <div class="cs-field-err" id="cs-err-status">Please select one.</div>
+      </div>
+
+      <div id="cs-med-block">
+        <div class="cs-section">Diagnosis</div>
+
+        <div class="cs-field">
+          <label>Year of diagnosis<span class="cs-req">*</span></label>
+          <input type="number" id="cs-diag-year" min="1950" max="2026" step="1" placeholder="e.g. 2019">
+          <div class="cs-field-err" id="cs-err-diag-year">Enter a valid year (1950–2026).</div>
+        </div>
+
+        <div class="cs-field">
+          <label>Diagnosed by a doctor?<span class="cs-req">*</span></label>
+          <div class="cs-radio-group">
+            <label class="cs-radio-row" onclick="cs_radio('diagnosis_confirmed','yes_doctor',this)">
+              <input type="radio" name="cs_dc"><div class="cs-dot"></div><span class="cs-rtxt">Yes — formal clinical diagnosis</span>
+            </label>
+            <label class="cs-radio-row" onclick="cs_radio('diagnosis_confirmed','awaiting',this)">
+              <input type="radio" name="cs_dc"><div class="cs-dot"></div><span class="cs-rtxt">Awaiting formal diagnosis</span>
+            </label>
+            <label class="cs-radio-row" onclick="cs_radio('diagnosis_confirmed','self',this)">
+              <input type="radio" name="cs_dc"><div class="cs-dot"></div><span class="cs-rtxt">Self-identified / not formally diagnosed</span>
+            </label>
+          </div>
+          <div class="cs-field-err" id="cs-err-dc">Please select one.</div>
+        </div>
+
+        <div class="cs-field">
+          <label>Severity<span class="cs-req">*</span></label>
+          <div class="cs-radio-group">
+            <label class="cs-radio-row" onclick="cs_radio('severity','mild',this)">
+              <input type="radio" name="cs_sev"><div class="cs-dot"></div><span class="cs-rtxt">Mild — noticeable but does not significantly limit daily activity</span>
+            </label>
+            <label class="cs-radio-row" onclick="cs_radio('severity','moderate',this)">
+              <input type="radio" name="cs_sev"><div class="cs-dot"></div><span class="cs-rtxt">Moderate — affects some daily activities</span>
+            </label>
+            <label class="cs-radio-row" onclick="cs_radio('severity','severe',this)">
+              <input type="radio" name="cs_sev"><div class="cs-dot"></div><span class="cs-rtxt">Severe — significantly limits daily function</span>
+            </label>
+          </div>
+          <div class="cs-field-err" id="cs-err-sev">Please select one.</div>
+        </div>
+
+        <div class="cs-section">Symptoms</div>
+
+        <div class="cs-field">
+          <label>Primary symptoms <span style="color:rgba(255,255,255,0.25);font-size:0.65rem;">(select all that apply)</span></label>
+          <div class="cs-chips">
+            <button type="button" class="cs-chip" data-val="tremor"       onclick="cs_toggle('symptoms',this)">Tremor</button>
+            <button type="button" class="cs-chip" data-val="rigidity"     onclick="cs_toggle('symptoms',this)">Rigidity / stiffness</button>
+            <button type="button" class="cs-chip" data-val="bradykinesia" onclick="cs_toggle('symptoms',this)">Slowness of movement</button>
+            <button type="button" class="cs-chip" data-val="balance"      onclick="cs_toggle('symptoms',this)">Balance / posture</button>
+            <button type="button" class="cs-chip" data-val="fatigue"      onclick="cs_toggle('symptoms',this)">Fatigue</button>
+            <button type="button" class="cs-chip" data-val="cognitive"    onclick="cs_toggle('symptoms',this)">Cognitive / memory</button>
+            <button type="button" class="cs-chip" data-val="pain"         onclick="cs_toggle('symptoms',this)">Pain</button>
+          </div>
+        </div>
+
+        <div class="cs-field">
+          <label>Symptom side</label>
+          <div class="cs-chips">
+            <button type="button" class="cs-chip" data-val="left"      onclick="cs_chip('symptom_side',this)">Left</button>
+            <button type="button" class="cs-chip" data-val="right"     onclick="cs_chip('symptom_side',this)">Right</button>
+            <button type="button" class="cs-chip" data-val="bilateral" onclick="cs_chip('symptom_side',this)">Both sides</button>
+            <button type="button" class="cs-chip" data-val="na"        onclick="cs_chip('symptom_side',this)">Not applicable</button>
+          </div>
+        </div>
+
+        <div class="cs-section">Functional Status</div>
+
+        <div class="cs-field">
+          <label>Falls in the past 6 months<span class="cs-req">*</span></label>
+          <div class="cs-radio-group">
+            <label class="cs-radio-row" onclick="cs_radio('falls_6mo','none',this)">
+              <input type="radio" name="cs_falls"><div class="cs-dot"></div><span class="cs-rtxt">None</span>
+            </label>
+            <label class="cs-radio-row" onclick="cs_radio('falls_6mo','1-2',this)">
+              <input type="radio" name="cs_falls"><div class="cs-dot"></div><span class="cs-rtxt">1–2 falls</span>
+            </label>
+            <label class="cs-radio-row" onclick="cs_radio('falls_6mo','3-5',this)">
+              <input type="radio" name="cs_falls"><div class="cs-dot"></div><span class="cs-rtxt">3–5 falls</span>
+            </label>
+            <label class="cs-radio-row" onclick="cs_radio('falls_6mo','6+',this)">
+              <input type="radio" name="cs_falls"><div class="cs-dot"></div><span class="cs-rtxt">6 or more falls</span>
+            </label>
+          </div>
+          <div class="cs-field-err" id="cs-err-falls">Please select one.</div>
+        </div>
+
+        <div class="cs-field">
+          <label>Walking aid</label>
+          <div class="cs-chips">
+            <button type="button" class="cs-chip" data-val="none"       onclick="cs_chip('walking_aid',this)">None</button>
+            <button type="button" class="cs-chip" data-val="cane"       onclick="cs_chip('walking_aid',this)">Cane</button>
+            <button type="button" class="cs-chip" data-val="walker"     onclick="cs_chip('walking_aid',this)">Walker / rollator</button>
+            <button type="button" class="cs-chip" data-val="wheelchair" onclick="cs_chip('walking_aid',this)">Wheelchair</button>
+          </div>
+        </div>
+
+        <div class="cs-section">Medication</div>
+
+        <div class="cs-field">
+          <label>Medications for this condition</label>
+          <input type="text" id="cs-med-names" placeholder="e.g. Levodopa, Carbidopa" autocorrect="off" spellcheck="false">
+          <div class="cs-hint">Separate with commas. Leave blank if none.</div>
+        </div>
+
+        <div class="cs-field">
+          <label>Last dose taken<span class="cs-req">*</span></label>
+          <select id="cs-med-timing">
+            <option value="" disabled selected>Select…</option>
+            <option value="no_medication">Not taking any medication for this condition</option>
+            <option value="0-2hr_on">0–2 hrs ago (ON / peak effect)</option>
+            <option value="2-5hr_wearing_off">2–5 hrs ago (wearing off)</option>
+            <option value="5hr+_off">5+ hrs ago (OFF state)</option>
+          </select>
+          <div class="cs-field-err" id="cs-err-med">Please select one.</div>
+        </div>
+      </div>
+
+      <div class="cs-section">Setup</div>
+
+      <div class="cs-field">
+        <label>Footwear<span class="cs-req">*</span></label>
+        <div class="cs-chips">
+          <button type="button" class="cs-chip" data-val="shoes"    onclick="cs_chip('footwear',this)">Shoes</button>
+          <button type="button" class="cs-chip" data-val="socks"    onclick="cs_chip('footwear',this)">Socks only</button>
+          <button type="button" class="cs-chip" data-val="barefoot" onclick="cs_chip('footwear',this)">Barefoot</button>
+        </div>
+        <div class="cs-field-err" id="cs-err-footwear">Please select one.</div>
+      </div>
+
+      <div class="cs-field">
+        <label>Chair type<span class="cs-req">*</span></label>
+        <div class="cs-chips">
+          <button type="button" class="cs-chip" data-val="no_arms" onclick="cs_chip('chair_type',this)">No armrests</button>
+          <button type="button" class="cs-chip" data-val="arms"    onclick="cs_chip('chair_type',this)">With armrests</button>
+        </div>
+        <div class="cs-field-err" id="cs-err-chair">Please select one.</div>
+      </div>
+
+      <div class="cs-field">
+        <label>Clothing fit<span class="cs-req">*</span></label>
+        <div class="cs-chips">
+          <button type="button" class="cs-chip" data-val="fitted" onclick="cs_chip('clothing_fit',this)">Fitted</button>
+          <button type="button" class="cs-chip" data-val="baggy"  onclick="cs_chip('clothing_fit',this)">Baggy / loose</button>
+        </div>
+        <div class="cs-field-err" id="cs-err-clothing">Please select one.</div>
+      </div>
+
+      <button class="cs-submit" id="cs-submit-btn" onclick="cs_submit()">Continue to Results →</button>
+    </div>
+  </div>`;
+
+  // Reset state
+  cs_unit = 'metric';
+  Object.keys(cs_sel).forEach(k => cs_sel[k] = null);
+  cs_multi.symptoms.clear();
+
+  ov.style.display = 'block';
+}
+
+function cs_setUnits(sys) {
+  cs_unit = sys;
+  document.getElementById('cs-btn-metric').classList.toggle('cs-active', sys === 'metric');
+  document.getElementById('cs-btn-imperial').classList.toggle('cs-active', sys === 'imperial');
+  document.getElementById('cs-h-metric').style.display   = sys === 'metric'   ? '' : 'none';
+  document.getElementById('cs-h-imperial').style.display = sys === 'imperial' ? '' : 'none';
+  document.getElementById('cs-w-metric').style.display   = sys === 'metric'   ? '' : 'none';
+  document.getElementById('cs-w-imperial').style.display = sys === 'imperial' ? '' : 'none';
+}
+
+function cs_radio(name, value, rowEl) {
+  cs_sel[name] = value;
+  const group = rowEl.closest('.cs-radio-group');
+  group.querySelectorAll('.cs-radio-row').forEach(r => r.classList.remove('cs-selected'));
+  rowEl.classList.add('cs-selected');
+
+  if (name === 'clinical_status') {
+    const mb = document.getElementById('cs-med-block');
+    mb.classList.toggle('cs-visible', value !== 'healthy_baseline');
+    document.getElementById('cs-other-block').style.display = value === 'other' ? '' : 'none';
+    if (value === 'healthy_baseline') document.getElementById('cs-other-block').querySelector('input').value = '';
+  }
+}
+
+function cs_chip(name, el) {
+  cs_sel[name] = el.dataset.val;
+  el.closest('.cs-chips').querySelectorAll('.cs-chip').forEach(c => c.classList.remove('cs-selected'));
+  el.classList.add('cs-selected');
+}
+
+function cs_toggle(name, el) {
+  const val = el.dataset.val;
+  if (cs_multi[name].has(val)) { cs_multi[name].delete(val); el.classList.remove('cs-selected'); }
+  else                         { cs_multi[name].add(val);    el.classList.add('cs-selected'); }
+}
+
+function cs_height() {
+  if (cs_unit === 'metric') {
+    const v = parseFloat(document.getElementById('cs-h-cm').value);
+    return (isNaN(v) || v < 50 || v > 250) ? null : +v.toFixed(1);
+  }
+  const ft = parseFloat(document.getElementById('cs-h-ft').value);
+  const iN = parseFloat(document.getElementById('cs-h-in').value || '0');
+  if (isNaN(ft) || ft < 1 || ft > 8 || iN < 0 || iN >= 12) return null;
+  return +((ft * 30.48) + (iN * 2.54)).toFixed(1);
+}
+
+function cs_weight() {
+  if (cs_unit === 'metric') {
+    const v = parseFloat(document.getElementById('cs-w-kg').value);
+    return (isNaN(v) || v < 20 || v > 300) ? null : +v.toFixed(1);
+  }
+  const lbs = parseFloat(document.getElementById('cs-w-lbs').value);
+  return (isNaN(lbs) || lbs < 44 || lbs > 660) ? null : +(lbs * 0.45359237).toFixed(1);
+}
+
+function cs_showErr(id, show) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('cs-show', show);
+}
+function cs_markErr(id, show) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('cs-err', show);
+}
+
+function cs_validate() {
+  let ok = true;
+
+  const noSex = !cs_sel.sex_at_birth;
+  cs_showErr('cs-err-sex', noSex); if (noSex) ok = false;
+
+  const age = parseInt(document.getElementById('cs-age').value, 10);
+  const badAge = isNaN(age) || age < 5 || age > 110;
+  cs_showErr('cs-err-age', badAge); cs_markErr('cs-age', badAge);
+  if (badAge) ok = false;
+
+  const hCm = cs_height();
+  cs_showErr('cs-err-height', hCm === null);
+  cs_markErr('cs-h-cm', hCm === null && cs_unit === 'metric');
+  cs_markErr('cs-h-ft', hCm === null && cs_unit === 'imperial');
+  if (hCm === null) ok = false;
+
+  const wKg = cs_weight();
+  cs_showErr('cs-err-weight', wKg === null);
+  cs_markErr('cs-w-kg', wKg === null && cs_unit === 'metric');
+  cs_markErr('cs-w-lbs', wKg === null && cs_unit === 'imperial');
+  if (wKg === null) ok = false;
+
+  const noStatus = !cs_sel.clinical_status;
+  cs_showErr('cs-err-status', noStatus); if (noStatus) ok = false;
+
+  if (cs_sel.clinical_status === 'other') {
+    const v = document.getElementById('cs-status-other').value.trim();
+    cs_showErr('cs-err-status-other', v.length < 2);
+    cs_markErr('cs-status-other', v.length < 2);
+    if (v.length < 2) ok = false;
+  }
+
+  if (cs_sel.clinical_status && cs_sel.clinical_status !== 'healthy_baseline') {
+    const dy = parseInt(document.getElementById('cs-diag-year').value, 10);
+    const badDy = isNaN(dy) || dy < 1950 || dy > 2026;
+    cs_showErr('cs-err-diag-year', badDy); cs_markErr('cs-diag-year', badDy);
+    if (badDy) ok = false;
+
+    const noDc = !cs_sel.diagnosis_confirmed;
+    cs_showErr('cs-err-dc', noDc); if (noDc) ok = false;
+
+    const noSev = !cs_sel.severity;
+    cs_showErr('cs-err-sev', noSev); if (noSev) ok = false;
+
+    const noFalls = !cs_sel.falls_6mo;
+    cs_showErr('cs-err-falls', noFalls); if (noFalls) ok = false;
+
+    const med = document.getElementById('cs-med-timing').value;
+    cs_showErr('cs-err-med', !med); cs_markErr('cs-med-timing', !med);
+    if (!med) ok = false;
+  }
+
+  const noFoot = !cs_sel.footwear;
+  cs_showErr('cs-err-footwear', noFoot); if (noFoot) ok = false;
+
+  const noChair = !cs_sel.chair_type;
+  cs_showErr('cs-err-chair', noChair); if (noChair) ok = false;
+
+  const noClothing = !cs_sel.clothing_fit;
+  cs_showErr('cs-err-clothing', noClothing); if (noClothing) ok = false;
+
+  return ok;
+}
+
+function cs_submit() {
+  if (!cs_validate()) return;
+
+  const btn = document.getElementById('cs-submit-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+
+  const isHealthy = cs_sel.clinical_status === 'healthy_baseline';
+  const clinStatus = cs_sel.clinical_status === 'other'
+    ? ('other: ' + document.getElementById('cs-status-other').value.trim())
+    : cs_sel.clinical_status;
+
+  const payload = {
+    height_cm:    cs_height(),
+    weight_kg:    cs_weight(),
+    age:          parseInt(document.getElementById('cs-age').value, 10),
+    sex_at_birth: cs_sel.sex_at_birth,
+    clinical_status: clinStatus,
+    setup_flags: {
+      footwear:     cs_sel.footwear,
+      chair_type:   cs_sel.chair_type,
+      clothing_fit: cs_sel.clothing_fit,
+    },
+    clinical_survey_complete: true,
+    clinical_survey_at: new Date().toISOString(),
+  };
+
+  if (!isHealthy) {
+    payload.diagnosis_year      = parseInt(document.getElementById('cs-diag-year').value, 10);
+    payload.diagnosis_confirmed = cs_sel.diagnosis_confirmed;
+    payload.severity            = cs_sel.severity;
+    payload.symptoms            = Array.from(cs_multi.symptoms);
+    payload.symptom_side        = cs_sel.symptom_side   || 'not_specified';
+    payload.falls_6mo           = cs_sel.falls_6mo;
+    payload.walking_aid         = cs_sel.walking_aid    || 'not_specified';
+    payload.medication_names    = document.getElementById('cs-med-names').value.trim() || 'none';
+    payload.medication_timing   = document.getElementById('cs-med-timing').value;
+  }
+
+  const doSave = (attempt = 1) =>
+    db.collection("participants").doc(participantID)
+      .set(payload, { merge: true })
+      .then(() => {
+        document.getElementById('cs-overlay').style.display = 'none';
+        showFinalResults();
+      })
+      .catch(e => {
+        if (attempt < 3) {
+          setTimeout(() => doSave(attempt + 1), 1000 * attempt);
+        } else {
+          btn.disabled = false; btn.textContent = 'Continue to Results →';
+          alert("Save failed. Check your connection and try again.");
+        }
+      });
+
+  doSave();
 }
 
 // ── Final Results ──
@@ -3100,7 +3659,6 @@ function showFinalResults() {
   }, { merge: true }).catch(e => console.warn("Summary save failed:", e));
 }
 
-
 function shareResults() {
   const scoredResult = allTrialResults.find((_, i) => i === 1) || allTrialResults[allTrialResults.length - 1];
   const best = scoredResult ? scoredResult.standCount : 0;
@@ -3117,7 +3675,6 @@ function normalCDF(z) { return 0.5 * (1 + erf(z / Math.sqrt(2))); }
 function erf(x) {
   const a1=0.254829592, a2=-0.284496736, a3=1.421413741, a4=-1.453152027, a5=1.061405429, p=0.3275911;
   const sign = x < 0 ? -1 : 1;
-  
   x = Math.abs(x);
   const t = 1.0 / (1.0 + p * x);
   const y = 1.0 - (((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
