@@ -3671,6 +3671,14 @@ function shareResults() {
 }
 window.shareResults = shareResults;
 
+// Clinical survey functions must be on window because they're called from
+// inline onclick handlers injected via innerHTML inside a module-scoped script.
+window.cs_radio    = cs_radio;
+window.cs_setUnits = cs_setUnits;
+window.cs_chip     = cs_chip;
+window.cs_toggle   = cs_toggle;
+window.cs_submit   = cs_submit;
+
 function normalCDF(z) { return 0.5 * (1 + erf(z / Math.sqrt(2))); }
 function erf(x) {
   const a1=0.254829592, a2=-0.284496736, a3=1.421413741, a4=-1.453152027, a5=1.061405429, p=0.3275911;
